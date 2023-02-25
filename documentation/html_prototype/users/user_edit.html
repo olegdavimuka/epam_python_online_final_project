@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Meta -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Users</title>
+    <!-- Meta -->
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="../css/site.css" />
+    <!-- CSS -->
+
+  </head>
+
+  <body>
+
+    <!-- Navbar -->
+    <div class="navbar p-3">
+      <a href="../home.html" class="navbar-brand">Home</a>
+      <a href="../users/user_list.html" class="navbar-item">Users</a>
+      <a href="../purses/purse_list.html" class="navbar-item">Purses</a>
+      <a href="../transactions/transaction_list.html" class="navbar-item">Transactions</a>
+    </div>
+    <!-- Navbar -->
+
+    <!-- Content -->
+    <div class="body-content">
+      <div class="card m-3">
+
+        <!-- HEADER -->
+        <div class="card-header p-3">
+          <div class="row flex-between-end">
+            <div class="col-auto align-self-center">
+              <h5 class="mb-0" data-anchor="data-anchor">User, id: 1</h5>
+            </div>
+          </div>
+        </div>
+        <!-- HEADER -->
+      
+        <!-- BODY -->
+        <div class="card-body bg-light">
+          <div class="tab-content">
+            <form method="post" class="form-floating">
+      
+              <div class="form-floating mb-3">
+                  <input class="form-control" id="id-name" type="text" placeholder="John" name="name" value="John" />
+                  <label for="name">Name</label>
+                </div>
+                
+                <div class="form-floating mb-3">
+                  <input class="form-control" id="id-email" type="text" placeholder="john@gmail.com" name="email" value="test@gmail.com" />
+                  <label for="email">Email</label>
+                </div>
+                
+                <div class="form-floating mb-3">
+                  <input class="form-control" id="id-phone" type="text" placeholder="+380123456789" name="phone" value="+380123456789" />
+                  <label for="phone">Phone</label>
+                </div>
+      
+              <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+        <!-- BODY -->
+      
+      </div>
+    </div>
+    <!-- Content -->
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
+    <script src="https://kit.fontawesome.com/dbcc9a05a2.js" crossorigin="anonymous"></script>
+    <!-- JS -->
+
+  </body>
+</html>

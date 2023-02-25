@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Meta -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Transactions</title>
+    <!-- Meta -->
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="../css/site.css" />
+    <!-- CSS -->
+
+  </head>
+
+  <body>
+
+    <!-- Navbar -->
+    <div class="navbar p-3">
+      <a href="../home.html" class="navbar-brand">Home</a>
+      <a href="../users/user_list.html" class="navbar-item">Users</a>
+      <a href="../purses/purse_list.html" class="navbar-item">Purses</a>
+      <a href="../transactions/transaction_list.html" class="navbar-item">Transactions</a>
+    </div>
+    <!-- Navbar -->
+
+    <!-- Content -->
+    <div class="body-content">
+      <div class="card m-3">
+
+        <!-- HEADER -->
+        <div class="card-header p-3">
+          <div class="row flex-between-center">
+      
+            <div class="col-auto col-sm-6 col-lg-7">
+              <h5 class="fs-0 mb-0 text-nowrap py-2 py-xl-0">
+                Transactions
+              </h5>
+            </div>
+      
+            <div class="col-auto col-sm-6 col-lg-5">
+              <div>
+                <form>
+                  <div class="input-group">
+                    <input class="form-control form-control-sm shadow-none search" type="search" placeholder="Search" aria-label="search" name="search" value="">
+      
+                    <div class="input-group-text bg-transparent">
+                      <button class="btn btn-falcon-default btn-sm" type="submit">
+                        <span class="fas fa-search" data-fa-transform="shrink-3 down-2"></span>
+                      </button>
+                    </div>
+      
+                </form>
+      
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter" aria-expanded="false" aria-controls="filter">
+                      <span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">Filter</span>
+                    </button>
+      
+                    <button onclick="window.location.href='transaction_new.html'" class="btn btn-outline-primary btn-sm" type="button">
+                      <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">New</span>
+                    </button>
+      
+                  </div>
+              </div>
+            </div>
+            <div class="collapse show" id="filter">
+                <form class="form-inline mr-auto"  method="GET" id="search-form">
+                    <div class="row p-2">
+
+                        <div class="col-md-4 py-2">
+                            <input name="date_range" value="" class="form-control datetimepicker" id="timepicker2" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+                        </div>
+
+                        <div class="col-md-2 py-2">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <span class="fas fa-search"></span>
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+        <!-- HEADER -->
+      
+        <!-- BODY -->
+        <div class="card-body p-0">
+          <div class="table-responsive scrollbar">
+            <table class="table table-sm table-striped table-hover fs--1 mb-0 overflow-hidden">
+              <!-- TABLE HEADER -->
+              <thead class="bg-200 text-900">
+                <tr>
+                  <th class="p-3 align-middle white-space-nowrap">ID</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse from ID</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse to ID</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse from currency</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse to currency</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse from amount</th>
+                  <th class="p-3 align-middle white-space-nowrap">Purse to amount</th>
+                </tr>
+              </thead>
+              <!-- TABLE HEADER -->
+
+              <!-- TABLE CONTENT -->
+              <tbody class="list" id="table-orders-body">
+                <tr class="btn-reveal-trigger">
+                  <td class="p-3 align-middle"><a href="transaction_edit.html">1</td>
+                  <td class="p-3 align-middle">1</td>
+                  <td class="p-3 align-middle">2</td>
+                  <td class="p-3 align-middle">USD</td>
+                  <td class="p-3 align-middle">USD</td>
+                  <td class="p-3 align-middle">100</td>
+                  <td class="p-3 align-middle">100</td>
+                </tr>
+                <tr class="btn-reveal-trigger">
+                  <td class="p-3 align-middle"><a href="transaction_edit.html">2</td>
+                    <td class="p-3 align-middle">2</td>
+                    <td class="p-3 align-middle">1</td>
+                    <td class="p-3 align-middle">USD</td>
+                    <td class="p-3 align-middle">EUR</td>
+                    <td class="p-3 align-middle">200</td>
+                    <td class="p-3 align-middle">180</td>
+                </tr>                
+              </tbody>
+              <!-- TABLE CONTENT -->
+            </table>
+          </div>
+        </div>
+        <!-- BODY -->
+      
+      </div>
+    </div>
+    <!-- Content -->
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
+    <script src="https://kit.fontawesome.com/dbcc9a05a2.js" crossorigin="anonymous"></script>
+    <!-- OBJECT DELETING -->
+    <script>
+      function deleteInstance(instance_id) {
+        $('.modal').modal('hide');
+        let url = $(`button[data-target-id="${instance_id}"]`).attr('data-target-link');
+
+        $.post(url)
+          .done(function (st) {
+            let el = $(`tr.link-row[data-target-id="${instance_id}"]`)
+            el.remove()
+            location.reload()
+          })
+          .fail(function (xhr, statusText, errorThrown) {
+            console.log(xhr, statusText, errorThrown)
+            location.reload()
+          })
+      }
+    </script>
+    <!-- OBJECT DELETING -->
+
+    <!-- DATETIMEPICKER -->
+    <script>
+      $(function () {
+        let dateArray = ''.split(' - ')
+        let startDate = dateArray[0]
+        let endDate = dateArray[dateArray.length - 1]
+        $('.datetimepicker').daterangepicker({
+          locale: {
+              format: 'YYYY-MM-DD H:mm'
+          },
+          startDate: startDate || Date.now(),
+          endDate: endDate || Date.now(),
+          timePicker: true,
+          timePicker24Hour: true,
+          showDropdowns: true,
+          minYear: 2017,
+          maxYear: parseInt(moment().format('YYYY'), 10)
+        });
+      });
+    </script>
+    <!-- DATETIMEPICKER -->    
+    <!-- JS -->
+
+  </body>
+</html>

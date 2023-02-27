@@ -1,5 +1,7 @@
 language: python
+os: linux
+dist: xenial
 python:
-  - "3.10"
+  - "3.9"
 install:
   pip install -r requirements.txt

@@ -3,7 +3,6 @@ from random import randint
 
 from faker import Faker
 
-from app import db
 from app.constants.currency import Currency
 from app.models.purses import Purse
 from app.models.transactions import Transaction

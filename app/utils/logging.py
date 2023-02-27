@@ -1,6 +1,7 @@
 import logging
 import sys
 
+
 def setup_logging():
     logging.basicConfig(
         filename="logs/e-wallet.log",
@@ -10,6 +11,8 @@ def setup_logging():
     )
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(
-        logging.Formatter("%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s")
+        logging.Formatter(
+            "%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s"
+        )
     )
     logging.getLogger().addHandler(console_handler)

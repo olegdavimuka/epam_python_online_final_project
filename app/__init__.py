@@ -4,6 +4,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+
 from app.utils.logging import setup_logging
 
 app = Flask(__name__)

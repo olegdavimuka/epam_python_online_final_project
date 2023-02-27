@@ -59,12 +59,12 @@ class Transaction(db.Model):
 
         purse_from = Purse.query.filter_by(id=self.purse_from_id).first()
         if not purse_from:
-            logging.error(f"Transaction creation failed. Purse from doesn't exist.")
+            logging.error("Transaction creation failed. Purse from doesn't exist.")
             raise ValueError("Purse from doesn't exist.")
 
         purse_to = Purse.query.filter_by(id=self.purse_to_id).first()
         if not purse_to:
-            logging.error(f"Transaction creation failed. Purse to doesn't exist.")
+            logging.error("Transaction creation failed. Purse to doesn't exist.")
             raise ValueError("Purse to doesn't exist.")
 
         if purse_from.balance < self.purse_from_amount:

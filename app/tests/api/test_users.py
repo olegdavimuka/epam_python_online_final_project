@@ -1,8 +1,8 @@
 import unittest
 from datetime import datetime
-from app.models.purses import Purse
-from app.models.users import User
+
 from app import app, db
+from app.models.users import User
 
 
 class TestUserAPI(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestUserAPI(unittest.TestCase):
         """
         Test retrieving a user with a given ID.
         """
-        
+
         response = self.client.get(f"/api/users/{self.user.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, self.user.to_dict())
@@ -65,7 +65,7 @@ class TestUserAPI(unittest.TestCase):
         """
         Test updating a user with a given ID.
         """
-        
+
         updated_user_data = {
             "username": "updateduser",
             "email": "updateduser@test.com",
@@ -83,7 +83,8 @@ class TestUserAPI(unittest.TestCase):
         self.assertEqual(updated_user.first_name, updated_user_data["first_name"])
         self.assertEqual(updated_user.last_name, updated_user_data["last_name"])
         self.assertEqual(
-            updated_user.birth_date, datetime.strptime(updated_user_data["birth_date"], "%Y-%m-%d")
+            updated_user.birth_date,
+            datetime.strptime(updated_user_data["birth_date"], "%Y-%m-%d"),
         )
 
     def test_put_nonexistent_user(self):
@@ -124,6 +125,6 @@ class TestUserAPI(unittest.TestCase):
         self.assertEqual(new_user.first_name, new_user_data["first_name"])
         self.assertEqual(new_user.last_name, new_user_data["last_name"])
         self.assertEqual(
-            new_user.birth_date, datetime.strptime(new_user_data["birth_date"], "%Y-%m-%d")
+            new_user.birth_date,
+            datetime.strptime(new_user_data["birth_date"], "%Y-%m-%d"),
         )
-       

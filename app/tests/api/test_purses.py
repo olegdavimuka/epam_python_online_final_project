@@ -1,13 +1,12 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from flask import Flask
 from flask_restful import Api
 
 from app import db
 from app.models.purses import Purse
-from app.rest.purses import (PursesAPI, PursesListAPI,
-                             get_purse_or_abort_if_doesnt_exist, parser)
+from app.rest.purses import get_purse_or_abort_if_doesnt_exist, parser
 
 
 class TestPursesAPI(unittest.TestCase):

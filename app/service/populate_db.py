@@ -13,7 +13,8 @@ fake = Faker()
 
 
 def create_fake_users(db):
-    # create users
+    """Create and save fake users to the database."""
+
     users = []
     for _ in range(10):
         user = User(
@@ -32,7 +33,8 @@ def create_fake_users(db):
 
 
 def create_fake_purses(db):
-    # create purses
+    """Create and save fake purses to the database."""
+
     purses = []
     users = User.query.all()
     for user in users:
@@ -50,7 +52,8 @@ def create_fake_purses(db):
 
 
 def create_fake_transactions(db):
-    # create transactions
+    """Create and save fake transactions to the database."""
+
     transactions = []
     for _ in range(10):
         purse_from = Purse.query.order_by(db.func.random()).first()

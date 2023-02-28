@@ -128,3 +128,6 @@ class TestUserAPI(unittest.TestCase):
             new_user.birth_date,
             datetime.strptime(new_user_data["birth_date"], "%Y-%m-%d"),
         )
+
+if __name__ == "__main__":
+    unittest.main()

@@ -67,6 +67,12 @@ class Transaction(db.Model):
             logging.error("Transaction creation failed. Purse to doesn't exist.")
             raise ValueError("Purse to doesn't exist.")
 
+        if purse_from == purse_to:
+            logging.error(
+                "Transaction creation failed. Purse from and purse to are the same."
+            )
+            raise ValueError("Purse from and purse to are the same.")
+
         if purse_from.balance < self.purse_from_amount:
             logging.error(
                 f"Transaction creation failed. Purse from amount is not enough. \

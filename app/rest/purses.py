@@ -3,7 +3,9 @@ import logging
 from flask_restful import Resource, abort, reqparse
 
 from app import db
+from app.constants.currency import Currency
 from app.models.purses import Purse
+from app.models.users import User
 
 
 def get_purse_or_abort_if_doesnt_exist(id):
@@ -21,11 +23,33 @@ def get_purse_or_abort_if_doesnt_exist(id):
     - 404 error: If the purse with the given id doesn't exist in the database.
     """
 
-    purse = Purse.query.get(id)
+    purse = db.session.get(Purse, id)
     if not purse:
         logging.error(f"purse {id} doesn't exist.")
         abort(404, message=f"purse {id} doesn't exist.")
     return purse
+
+
+def _validate_args(args):
+    """
+    Validates the arguments of a request.
+
+    Args:
+    - args (dict): The arguments of the request.
+
+    Returns:
+    - True if the arguments are valid, False otherwise.
+    """
+
+    if User.query.filter_by(id=args["user_id"]).first() is None:
+        logging.error(f"User {args['user_id']} doesn't exist.")
+        abort(400, message=f"User {args['user_id']} doesn't exist.")
+
+    if args["currency"] not in Currency.__members__:
+        logging.error(f"Currency {args['currency']} is not valid.")
+        abort(400, message=f"Currency {args['currency']} is not valid.")
+
+    return True
 
 
 parser = reqparse.RequestParser()
@@ -101,6 +125,7 @@ class PursesListAPI(Resource):
         """
 
         args = parser.parse_args()
+        _validate_args(args)
         purse = Purse(user_id=args["user_id"], currency=args["currency"])
         db.session.add(purse)
         db.session.commit()

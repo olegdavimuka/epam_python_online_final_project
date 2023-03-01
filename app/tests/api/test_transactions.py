@@ -1,121 +1,267 @@
-import unittest
+import pytest
+from faker import Faker
 
-from flask import Flask
-
-from app import api, app, db
+from app import create_app, db
+from app.config import TestingConfig
+from app.constants.currency import Currency
+from app.models.purses import Purse
 from app.models.transactions import Transaction
-from app.rest.transactions import TransactionsAPI, TransactionsListAPI
+from app.models.users import User
+from app.utils.validation import fake_phone_number
+
+fake = Faker()
 
 
-class TestTransactionsAPI(unittest.TestCase):
+@pytest.fixture()
+def app():
     """
-    Test class for testing the Transaction API.
+    Create and configure a new app instance for each test.
     """
 
-    def setUp(self):
-        """
-        Setup method that creates an in-memory SQLite database and initializes
-        the test client and database with a single transaction.
-        """
+    app = create_app(config_class=TestingConfig)
 
-        app = Flask(__name__)
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        db.init_app(app)
-        with app.app_context():
-            db.create_all()
-        api.add_resource(TransactionsListAPI, "/api/transactions")
-        api.add_resource(TransactionsAPI, "/api/transactions/<int:id>")
-        self.client = app.test_client()
-        self.transaction = Transaction(
-            purse_from_id=1, purse_to_id=2, purse_from_amount=10
+    with app.app_context():
+        db.create_all()
+        user = User(
+            username=fake.user_name(),
+            email=fake.email(),
+            phone=fake_phone_number(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            birth_date=fake.date_of_birth(),
         )
-        with app.app_context():
-            db.session.add(self.transaction)
-            db.session.commit()
+        db.session.add(user)
+        db.session.commit()
 
-    def tearDown(self):
+        purse1 = Purse(user_id=user.id, currency=Currency.USD.value, balance=1000)
+        purse2 = Purse(user_id=user.id, currency=Currency.EUR.value, balance=1000)
+        db.session.add(purse1)
+        db.session.add(purse2)
+        db.session.commit()
+
+        transaction = Transaction(
+            purse_from_id=purse1.id,
+            purse_to_id=purse2.id,
+            purse_from_amount=100,
+        )
+
+        db.session.add(transaction)
+        db.session.commit()
+
+        yield app
+
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture
+def client(app):
+    """
+    A test client for the app.
+    """
+
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def runner(app):
+    """
+    A test runner for the app's Click commands.
+    """
+
+    return app.test_cli_runner()
+
+
+@pytest.fixture
+def user(app):
+    """
+    A user for the tests.
+    """
+
+    with app.app_context():
+        user = User.query.first()
+        yield user
+
+
+@pytest.fixture
+def purse(app):
+    """
+    A purse for the tests.
+    """
+
+    with app.app_context():
+        purse = Purse.query.first()
+        yield purse
+
+
+@pytest.fixture
+def purses(app):
+    """
+    A list of purses for the tests.
+    """
+
+    with app.app_context():
+        purses = Purse.query.all()
+        yield purses
+
+
+@pytest.fixture
+def transaction(app):
+    """
+    A transaction for the tests.
+    """
+
+    with app.app_context():
+        transaction = Transaction.query.first()
+        yield transaction
+
+
+class TestTransactionsAPI:
+    """
+    Test transactions API.
+    """
+
+    def test_get_transactions(self, client, transaction):
         """
-        Tear-down method that drops all tables from the in-memory database.
+        Test retrieving all transactions.
         """
 
-        with app.app_context():
-            db.drop_all()
+        response = client.get("/api/transactions")
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["id"] == transaction.id
+        assert response.json[0]["purse_from_id"] == transaction.purse_from_id
+        assert response.json[0]["purse_to_id"] == transaction.purse_to_id
+        assert (
+            response.json[0]["purse_from_currency"]
+            == Currency(transaction.purse_from_currency).value
+        )
+        assert (
+            response.json[0]["purse_to_currency"]
+            == Currency(transaction.purse_to_currency).value
+        )
+        assert response.json[0]["purse_from_amount"] == transaction.purse_from_amount
+        assert response.json[0]["purse_to_amount"] == transaction.purse_to_amount
 
-    def test_get_transaction(self):
+    def test_get_transaction(self, client, transaction):
         """
-        Tests that a GET request to retrieve a transaction
-        by its ID returns the correct transaction and status code.
-        """
-
-        response = self.client.get(f"/api/transactions/{self.transaction.id}")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, self.transaction.to_dict())
-
-    def test_get_transaction_doesnt_exist(self):
-        """
-        Tests that a GET request to retrieve a non-existent
-        transaction returns a 404 status code.
-        """
-
-        response = self.client.get(f"/api/transactions/{self.transaction.id + 1}")
-        self.assertEqual(response.status_code, 404)
-
-    def test_get_transactions_list(self):
-        """
-        Tests that a GET request to retrieve a list of
-        all transactions returns the correct list and status code.
+        Test retrieving a transaction with a given ID.
         """
 
-        response = self.client.get("/api/transactions")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json), 1)
-        self.assertEqual(response.json[0], self.transaction.to_dict())
+        response = client.get(f"/api/transactions/{transaction.id}")
+        assert response.status_code == 200
+        assert response.json["id"] == transaction.id
+        assert response.json["purse_from_id"] == transaction.purse_from_id
+        assert response.json["purse_to_id"] == transaction.purse_to_id
+        assert (
+            response.json["purse_from_currency"]
+            == Currency(transaction.purse_from_currency).value
+        )
+        assert (
+            response.json["purse_to_currency"]
+            == Currency(transaction.purse_to_currency).value
+        )
+        assert response.json["purse_from_amount"] == transaction.purse_from_amount
+        assert response.json["purse_to_amount"] == transaction.purse_to_amount
 
-    def test_post_transaction(self):
+    def test_get_nonexistent_transaction(self, client):
         """
-        Tests that a POST request to create a new transaction
-        with valid data returns a 201 status code and that
-        the transaction is added to the database.
+        Test retrieving a nonexistent transaction.
         """
 
-        new_transaction_data = {
-            "purse_from_id": 2,
-            "purse_to_id": 1,
-            "purse_from_amount": 5,
+        response = client.get("/api/transactions/0")
+        assert response.status_code == 404
+
+    def test_post_transaction(self, client, purses):
+        """
+        Test creating a new transaction.
+
+        Before:
+            - purse1: 900 USD
+            - purse2: 1095 EUR
+
+        Exchange rate:
+            - USD/EUR: 0.95
+
+        After:
+            - purse1: 800 USD (100 USD was sent to purse2)
+            - purse2: 1190 EUR (95 EUR was received from purse1)
+        """
+
+        data = {
+            "purse_from_id": purses[0].id,
+            "purse_to_id": purses[1].id,
+            "purse_from_amount": 100,
         }
-        response = self.client.post("/api/transactions", data=new_transaction_data)
-        self.assertEqual(response.status_code, 201)
-        new_transaction = Transaction.query.filter_by(id=response.json["id"]).first()
-        self.assertIsNotNone(new_transaction)
-        self.assertEqual(new_transaction.purse_from_id, 2)
-        self.assertEqual(new_transaction.purse_to_id, 1)
-        self.assertEqual(new_transaction.purse_from_amount, 5)
 
-    def test_post_transaction_missing_required_field(self):
-        """
-        Tests that a POST request to create a new transaction
-        with missing required fields returns a 400 status code.
-        """
+        response = client.post("/api/transactions", data=data)
+        assert response.status_code == 201
+        assert response.json["purse_from_id"] == purses[0].id
+        assert response.json["purse_to_id"] == purses[1].id
+        assert (
+            response.json["purse_from_currency"] == Currency(purses[0].currency).value
+        )
+        assert response.json["purse_to_currency"] == Currency(purses[1].currency).value
+        assert response.json["purse_from_amount"] == 100
+        assert response.json["purse_to_amount"] == 95  # 100 * 0.95
 
-        new_transaction_data = {"purse_to_id": 1, "purse_from_amount": 5}
-        response = self.client.post("/api/transactions", data=new_transaction_data)
-        self.assertEqual(response.status_code, 400)
+        assert purses[0].balance == 800
+        assert purses[1].balance == 1190
 
-    def test_post_transaction_invalid_field_type(self):
+    def test_post_transaction_invalid_purse_from(self, client, purse):
         """
-        Tests that a POST request to create a new transaction
-        with invalid field types returns a 400 status code.
+        Test creating a new transaction with an invalid purse.
         """
 
-        new_transaction_data = {
-            "purse_from_id": "not_an_int",
-            "purse_to_id": 1,
-            "purse_from_amount": 5,
+        data = {
+            "purse_from_id": 0,
+            "purse_to_id": purse.id,
+            "purse_from_amount": 100,
         }
-        response = self.client.post("/api/transactions", data=new_transaction_data)
-        self.assertEqual(response.status_code, 400)
 
+        response = client.post("/api/transactions", data=data)
+        assert response.status_code == 400
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_post_transaction_invalid_purse_to(self, client, purse):
+        """
+        Test creating a new transaction with an invalid purse.
+        """
+
+        data = {
+            "purse_from_id": purse.id,
+            "purse_to_id": 0,
+            "purse_from_amount": 100,
+        }
+
+        response = client.post("/api/transactions", data=data)
+        assert response.status_code == 400
+
+    def test_post_transaction_not_enough_funds(self, client, purses):
+        """
+        Test creating a new transaction with not enough funds.
+        """
+
+        data = {
+            "purse_from_id": purses[0].id,
+            "purse_to_id": purses[1].id,
+            "purse_from_amount": 10000,
+        }
+
+        response = client.post("/api/transactions", data=data)
+        assert response.status_code == 400
+
+    def test_post_transaction_same_purse(self, client, purse):
+        """
+        Test creating a new transaction with the same purse.
+        """
+
+        data = {
+            "purse_from_id": purse.id,
+            "purse_to_id": purse.id,
+            "purse_from_amount": 100,
+        }
+
+        response = client.post("/api/transactions", data=data)
+        assert response.status_code == 400

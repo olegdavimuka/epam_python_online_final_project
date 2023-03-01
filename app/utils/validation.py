@@ -1,3 +1,4 @@
+import random
 import re
 
 
@@ -51,3 +52,17 @@ def is_valid_date(date):
     # Regular expression for matching date in format "yyyy-mm-dd"
     regex = r"^\d{4}-\d{2}-\d{2}$"
     return re.match(regex, date) is not None
+
+
+def fake_phone_number() -> str:
+    """
+    Generate a random phone number in format "+{1,2,3}xxxxxxxxxx".
+
+    Returns:
+        str: The generated phone number.
+    """
+
+    country_code = random.choice([1, 3])
+    number = "".join([str(random.randint(0, 9)) for _ in range(11)])
+    phone_number = f"+{country_code}{number}"
+    return phone_number

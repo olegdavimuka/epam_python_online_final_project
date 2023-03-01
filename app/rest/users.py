@@ -25,11 +25,49 @@ def get_user_or_abort_if_doesnt_exist(id):
     - 404 error: If the user with the given id doesn't exist in the database.
     """
 
-    user = User.query.get(id)
+    user = db.session.get(User, id)
     if not user:
         logging.error(f"user {id} doesn't exist.")
         abort(404, message=f"user {id} doesn't exist.")
     return user
+
+
+def _validate_args(args):
+    """
+    Validates the arguments of a request.
+
+    Args:
+    - args (dict): The arguments of the request.
+
+    Returns:
+    - True if the arguments are valid, False otherwise.
+    """
+
+    if User.query.filter_by(username=args["username"]).first():
+        logging.error(f"Username {args['username']} already exists.")
+        abort(400, message=f"Username {args['username']} already exists.")
+
+    if User.query.filter_by(email=args["email"]).first():
+        logging.error(f"Email {args['email']} already exists.")
+        abort(400, message=f"Email {args['email']} already exists.")
+
+    if User.query.filter_by(phone=args["phone"]).first():
+        logging.error(f"Phone {args['phone']} already exists.")
+        abort(400, message=f"Phone {args['phone']} already exists.")
+
+    if is_valid_date(args["birth_date"]) is False:
+        logging.error(f"Birth date {args['birth_date']} is not valid.")
+        abort(400, message=f"Birth date {args['birth_date']} is not valid.")
+
+    if is_valid_phone_number(args["phone"]) is False:
+        logging.error(f"Phone {args['phone']} is not valid.")
+        abort(400, message=f"Phone {args['phone']} is not valid.")
+
+    if is_valid_email(args["email"]) is False:
+        logging.error(f"Email {args['email']} is not valid.")
+        abort(400, message=f"Email {args['email']} is not valid.")
+
+    return True
 
 
 post_parser = reqparse.RequestParser()
@@ -119,44 +157,6 @@ put_parser.add_argument(
     required=False,
     help="Birth date is required.",
 )
-
-
-def _validate_args(args):
-    """
-    Validates the arguments of a request.
-
-    Args:
-    - args (dict): The arguments of the request.
-
-    Returns:
-    - True if the arguments are valid, False otherwise.
-    """
-
-    if User.query.filter_by(username=args["username"]).first():
-        logging.error(f"Username {args['username']} already exists.")
-        abort(400, message=f"Username {args['username']} already exists.")
-
-    if User.query.filter_by(email=args["email"]).first():
-        logging.error(f"Email {args['email']} already exists.")
-        abort(400, message=f"Email {args['email']} already exists.")
-
-    if User.query.filter_by(phone=args["phone"]).first():
-        logging.error(f"Phone {args['phone']} already exists.")
-        abort(400, message=f"Phone {args['phone']} already exists.")
-
-    if is_valid_date(args["birth_date"]) is False:
-        logging.error(f"Birth date {args['birth_date']} is not valid.")
-        abort(400, message=f"Birth date {args['birth_date']} is not valid.")
-
-    if is_valid_phone_number(args["phone"]) is False:
-        logging.error(f"Phone {args['phone']} is not valid.")
-        abort(400, message=f"Phone {args['phone']} is not valid.")
-
-    if is_valid_email(args["email"]) is False:
-        logging.error(f"Email {args['email']} is not valid.")
-        abort(400, message=f"Email {args['email']} is not valid.")
-
-    return True
 
 
 class UsersAPI(Resource):

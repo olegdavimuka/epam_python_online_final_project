@@ -1,111 +1,182 @@
-import unittest
-from unittest.mock import patch
+import pytest
+from faker import Faker
 
-from flask import Flask
-from flask_restful import Api
-
-from app import db
+from app import create_app, db
+from app.config import TestingConfig
+from app.constants.currency import Currency
 from app.models.purses import Purse
-from app.rest.purses import get_purse_or_abort_if_doesnt_exist, parser
+from app.models.users import User
+from app.utils.validation import fake_phone_number
+
+fake = Faker()
 
 
-class TestPursesAPI(unittest.TestCase):
+@pytest.fixture()
+def app():
     """
-    Test class for testing the Purse API.
+    Create and configure a new app instance for each test.
     """
 
-    def setUp(self):
-        """
-        Set up the Flask app and create a test client.
-        Also, initialize the database and create all the tables.
-        """
+    app = create_app(config_class=TestingConfig)
 
-        app = Flask(__name__)
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        self.app = app.test_client()
-        db.init_app(app)
-        with app.app_context():
-            db.create_all()
-        self.api = Api(app)
+    with app.app_context():
+        db.create_all()
+        user = User(
+            username=fake.user_name(),
+            email=fake.email(),
+            phone=fake_phone_number(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            birth_date=fake.date_of_birth(),
+        )
+        db.session.add(user)
+        db.session.commit()
 
-    def tearDown(self):
-        """
-        Remove the database session and drop all tables after each test.
-        """
-
-        with self.app.application.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    def test_get_purse_or_abort_if_doesnt_exist(self):
-        """
-        Test function to check if the purse exists in the database or not.
-        """
-
-        with self.assertRaises(Exception) as context:
-            get_purse_or_abort_if_doesnt_exist(1)
-        self.assertEqual(context.exception.code, 404)
-
-        purse = Purse(user_id=1, currency="USD")
+        purse = Purse(user_id=user.id, currency=Currency.USD.value)
         db.session.add(purse)
         db.session.commit()
 
-        self.assertEqual(get_purse_or_abort_if_doesnt_exist(purse.id), purse)
+        yield app
 
-    def test_PursesAPI_get(self):
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture
+def client(app):
+    """
+    A test client for the app.
+    """
+
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def runner(app):
+    """
+    A test runner for the app's Click commands.
+    """
+
+    return app.test_cli_runner()
+
+
+@pytest.fixture
+def user(app):
+    """
+    A user for the tests.
+    """
+
+    with app.app_context():
+        user = User.query.first()
+        yield user
+
+
+@pytest.fixture
+def purse(app):
+    """
+    A purse for the tests.
+    """
+
+    with app.app_context():
+        purse = Purse.query.first()
+        yield purse
+
+
+class TestPursesAPI:
+    """
+    Test purses API.
+    """
+
+    def test_get_purses(self, client, purse):
         """
-        Test function to get a specific purse from the API.
+        Test retrieving all purses.
         """
 
-        purse = Purse(user_id=1, currency="USD")
-        db.session.add(purse)
-        db.session.commit()
+        response = client.get("/api/purses")
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["id"] == purse.id
+        assert response.json[0]["user_id"] == purse.user_id
+        assert response.json[0]["currency"] == Currency(purse.currency).value
+        assert response.json[0]["balance"] == purse.balance
 
-        response = self.app.get(f"/api/purses/{purse.id}")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, purse.to_dict())
-
-    def test_PursesAPI_delete(self):
+    def test_get_purse(self, client, purse):
         """
-        Test function to delete a specific purse from the API.
-        """
-
-        purse = Purse(user_id=1, currency="USD")
-        db.session.add(purse)
-        db.session.commit()
-
-        response = self.app.delete(f"/api/purses/{purse.id}")
-        self.assertEqual(response.status_code, 204)
-        self.assertIsNone(Purse.query.get(purse.id))
-
-    def test_PursesListAPI_get(self):
-        """
-        Test function to get a list of all the purses from the API.
+        Test retrieving a purse with a given ID.
         """
 
-        purses = [Purse(user_id=1, currency="USD") for i in range(3)]
-        db.session.add_all(purses)
-        db.session.commit()
+        response = client.get(f"/api/purses/{purse.id}")
+        assert response.status_code == 200
+        assert response.json["id"] == purse.id
+        assert response.json["user_id"] == purse.user_id
+        assert response.json["currency"] == Currency(purse.currency).value
+        assert response.json["balance"] == purse.balance
 
-        response = self.app.get("/api/purses")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, [purse.to_dict() for purse in purses])
-
-    @patch.object(parser, "parse_args", return_value={"user_id": 1, "currency": "USD"})
-    def test_PursesListAPI_post(self, mock_parse_args):
+    def test_get_nonexistent_purse(self, client):
         """
-        Test function to add a new purse to the API.
+        Test retrieving a nonexistent user.
         """
 
-        response = self.app.post("/api/purses")
-        self.assertEqual(response.status_code, 201)
+        response = client.get("/api/purses/0")
+        assert response.status_code == 404
 
-        purse = Purse.query.filter_by(id=response.json["id"]).first()
-        self.assertIsNotNone(purse)
-        self.assertEqual(purse.user_id, 1)
-        self.assertEqual(purse.currency, "USD")
+    def test_delete_purse(self, client, purse):
+        """
+        Test deleting a purse with a given ID.
+        """
 
+        response = client.delete(f"/api/purses/{purse.id}")
+        assert response.status_code == 204
+        assert Purse.query.filter_by(id=purse.id).count() == 0
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_delete_nonexistent_purse(self, client):
+        """
+        Test deleting a nonexistent purse.
+        """
+
+        response = client.delete("/api/purses/0")
+        assert response.status_code == 404
+
+    def test_post_purse(self, client, user):
+        """
+        Test creating a new purse.
+        """
+
+        data = {
+            "user_id": user.id,
+            "currency": Currency.USD.value,
+        }
+
+        response = client.post("/api/purses", data=data)
+        assert response.status_code == 201
+        assert response.json["user_id"] == user.id
+        assert response.json["currency"] == Currency.USD.value
+        assert response.json["balance"] == 0.0
+
+    def test_create_purse_with_invalid_user_id(self, client):
+        """
+        Test creating a purse with an invalid user id.
+        """
+
+        data = {
+            "user_id": 0,
+            "currency": Currency.USD,
+        }
+
+        response = client.post("/api/purses", data=data)
+        assert response.status_code == 400
+
+    def test_create_purse_with_invalid_currency(self, client, user):
+        """
+        Test creating a purse with an invalid currency.
+        """
+
+        data = {
+            "user_id": user.id,
+            "currency": "invalid",
+        }
+
+        response = client.post("/api/purses", data=data)
+        assert response.status_code == 400

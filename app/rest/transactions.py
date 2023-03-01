@@ -3,6 +3,7 @@ import logging
 from flask_restful import Resource, abort, reqparse
 
 from app import db
+from app.models.purses import Purse
 from app.models.transactions import Transaction
 
 
@@ -21,11 +22,52 @@ def get_transaction_or_abort_if_doesnt_exist(id):
     - 404 error: If the transaction with the given id doesn't exist in the database.
     """
 
-    transaction = Transaction.query.get(id)
+    transaction = db.session.get(Transaction, id)
     if not transaction:
         logging.error(f"Transaction {id} doesn't exist.")
         abort(404, message=f"Transaction {id} doesn't exist.")
     return transaction
+
+
+def _validate_args(args):
+    """
+    Validates the arguments of a request.
+
+    Args:
+    - args (dict): The arguments of the request.
+
+    Returns:
+    - True if the arguments are valid, False otherwise.
+    """
+
+    if Purse.query.filter_by(id=args["purse_from_id"]).first() is None:
+        logging.error(f"Purse {args['purse_from_id']} doesn't exist.")
+        abort(400, message=f"Purse {args['purse_from_id']} doesn't exist.")
+
+    if Purse.query.filter_by(id=args["purse_to_id"]).first() is None:
+        logging.error(f"Purse {args['purse_to_id']} doesn't exist.")
+        abort(400, message=f"Purse {args['purse_to_id']} doesn't exist.")
+
+    if (
+        Purse.query.filter_by(id=args["purse_from_id"]).first()
+        == Purse.query.filter_by(id=args["purse_to_id"]).first()
+    ):
+        logging.error(
+            f"Purse {args['purse_from_id']} and purse {args['purse_to_id']} are the same."
+        )
+        abort(
+            400,
+            message=f"Purse {args['purse_from_id']} and purse {args['purse_to_id']} are the same.",
+        )
+
+    if (
+        Purse.query.filter_by(id=args["purse_from_id"]).first().balance
+        < args["purse_from_amount"]
+    ):
+        logging.error(f"Purse {args['purse_from_id']} doesn't have enough money.")
+        abort(400, message=f"Purse {args['purse_from_id']} doesn't have enough money.")
+
+    return True
 
 
 parser = reqparse.RequestParser()
@@ -92,6 +134,7 @@ class TransactionsListAPI(Resource):
         """
 
         args = parser.parse_args()
+        _validate_args(args)
         transaction = Transaction(
             purse_from_id=args["purse_from_id"],
             purse_to_id=args["purse_to_id"],

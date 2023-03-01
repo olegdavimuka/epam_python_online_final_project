@@ -3,9 +3,11 @@ from datetime import datetime
 
 from flask_restful import Resource, abort, reqparse
 
-from app import api, db
+from app import db
 from app.models.purses import Purse
 from app.models.users import User
+from app.utils.validation import (is_valid_date, is_valid_email,
+                                  is_valid_phone_number)
 
 
 def get_user_or_abort_if_doesnt_exist(id):
@@ -119,6 +121,44 @@ put_parser.add_argument(
 )
 
 
+def _validate_args(args):
+    """
+    Validates the arguments of a request.
+
+    Args:
+    - args (dict): The arguments of the request.
+
+    Returns:
+    - True if the arguments are valid, False otherwise.
+    """
+
+    if User.query.filter_by(username=args["username"]).first():
+        logging.error(f"Username {args['username']} already exists.")
+        abort(400, message=f"Username {args['username']} already exists.")
+
+    if User.query.filter_by(email=args["email"]).first():
+        logging.error(f"Email {args['email']} already exists.")
+        abort(400, message=f"Email {args['email']} already exists.")
+
+    if User.query.filter_by(phone=args["phone"]).first():
+        logging.error(f"Phone {args['phone']} already exists.")
+        abort(400, message=f"Phone {args['phone']} already exists.")
+
+    if is_valid_date(args["birth_date"]) is False:
+        logging.error(f"Birth date {args['birth_date']} is not valid.")
+        abort(400, message=f"Birth date {args['birth_date']} is not valid.")
+
+    if is_valid_phone_number(args["phone"]) is False:
+        logging.error(f"Phone {args['phone']} is not valid.")
+        abort(400, message=f"Phone {args['phone']} is not valid.")
+
+    if is_valid_email(args["email"]) is False:
+        logging.error(f"Email {args['email']} is not valid.")
+        abort(400, message=f"Email {args['email']} is not valid.")
+
+    return True
+
+
 class UsersAPI(Resource):
     def get(self, id):
         """
@@ -171,6 +211,7 @@ class UsersAPI(Resource):
 
         user = get_user_or_abort_if_doesnt_exist(id)
         args = put_parser.parse_args()
+        _validate_args(args)
         args["birth_date"] = datetime.strptime(args["birth_date"], "%Y-%m-%d")
         logging.info(
             f"Updating user {id}. Old values: {user.to_dict()}. New values: {args}."
@@ -205,13 +246,10 @@ class UsersListAPI(Resource):
         """
 
         args = post_parser.parse_args()
+        _validate_args(args)
         args["birth_date"] = datetime.strptime(args["birth_date"], "%Y-%m-%d")
         user = User(**args)
         db.session.add(user)
         db.session.commit()
         logging.info(f"Created new user {user.id}. Details: {user.to_dict()}.")
         return user.to_dict(), 201
-
-
-api.add_resource(UsersListAPI, "/api/users")
-api.add_resource(UsersAPI, "/api/users/<int:id>")

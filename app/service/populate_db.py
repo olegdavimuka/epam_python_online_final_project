@@ -11,15 +11,17 @@ from app.models.users import User
 fake = Faker()
 
 
-def create_fake_users(db):
+def _create_fake_users(db):
     """Create and save fake users to the database."""
 
     users = []
-    for _ in range(10):
+    phone = "+380000000000"
+    for _ in range(9):
+        phone = phone[:-1] + str(int(phone[-1]) + 1)
         user = User(
             username=fake.user_name(),
             email=fake.email(),
-            phone=fake.phone_number(),
+            phone=phone,
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             birth_date=fake.date_of_birth(),
@@ -31,7 +33,7 @@ def create_fake_users(db):
     db.session.commit()
 
 
-def create_fake_purses(db):
+def _create_fake_purses(db):
     """Create and save fake purses to the database."""
 
     purses = []
@@ -40,7 +42,7 @@ def create_fake_purses(db):
         for currency in Currency:
             purse = Purse(
                 user_id=user.id,
-                currency=currency,
+                currency=currency.value,
                 balance=randint(0, 1000),
                 date_created=datetime.now(),
                 date_modified=datetime.now(),
@@ -50,7 +52,7 @@ def create_fake_purses(db):
     db.session.commit()
 
 
-def create_fake_transactions(db):
+def _create_fake_transactions(db):
     """Create and save fake transactions to the database."""
 
     transactions = []
@@ -77,3 +79,13 @@ def create_fake_transactions(db):
         transactions.append(transaction)
     db.session.add_all(transactions)
     db.session.commit()
+
+
+def populate_db(db):
+    """
+    Populate the database with fake data.
+    """
+
+    _create_fake_users(db)
+    _create_fake_purses(db)
+    _create_fake_transactions(db)

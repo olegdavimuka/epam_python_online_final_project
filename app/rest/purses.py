@@ -2,7 +2,7 @@ import logging
 
 from flask_restful import Resource, abort, reqparse
 
-from app import api, db
+from app import db
 from app.models.purses import Purse
 
 
@@ -106,7 +106,3 @@ class PursesListAPI(Resource):
         db.session.commit()
         logging.info(f"Created new purse {purse.id}. Details: {purse.to_dict()}.")
         return purse.to_dict(), 201
-
-
-api.add_resource(PursesListAPI, "/api/purses")
-api.add_resource(PursesAPI, "/api/purses/<int:id>")

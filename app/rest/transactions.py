@@ -2,7 +2,7 @@ import logging
 
 from flask_restful import Resource, abort, reqparse
 
-from app import api, db
+from app import db
 from app.models.transactions import Transaction
 
 
@@ -101,7 +101,3 @@ class TransactionsListAPI(Resource):
         db.session.commit()
         logging.info(f"Created new transaction. Details: {transaction.to_dict()}")
         return transaction.to_dict(), 201
-
-
-api.add_resource(TransactionsListAPI, "/api/transactions")
-api.add_resource(TransactionsAPI, "/api/transactions/<int:id>")

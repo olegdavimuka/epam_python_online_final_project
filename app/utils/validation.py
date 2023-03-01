@@ -35,3 +35,19 @@ def is_valid_phone_number(phone_number):
     # Regular expression for matching phone number in format "+{1,2,3}xxxxxxxxxx"
     regex = r"^\+[1,3]\d{11}$"
     return re.match(regex, phone_number) is not None
+
+
+def is_valid_date(date):
+    """
+    Validates whether a date is in a valid format.
+
+    Args:
+        date (str): The date to validate.
+
+    Returns:
+        bool: True if the date is valid, False otherwise.
+    """
+
+    # Regular expression for matching date in format "yyyy-mm-dd"
+    regex = r"^\d{4}-\d{2}-\d{2}$"
+    return re.match(regex, date) is not None

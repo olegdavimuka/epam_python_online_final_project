@@ -1,133 +1,331 @@
-import unittest
 from datetime import datetime
 
-from app import app, db
+import pytest
+from faker import Faker
+
+from app import create_app, db
+from app.config import TestingConfig
 from app.models.users import User
 
+fake = Faker()
 
-class TestUserAPI(unittest.TestCase):
+
+@pytest.fixture()
+def app():
     """
-    Test class for testing the User API.
+    Create and configure a new app instance for each test.
     """
 
-    def setUp(self):
-        """
-        Set up the test database and create a test client.
-        """
+    app = create_app(config_class=TestingConfig)
 
-        self.client = app.test_client()
-        self.user = User(
-            username="testuser",
-            email="testuser@test.com",
-            phone="+12345678901",
-            first_name="Test",
-            last_name="User",
-            birth_date=datetime.strptime("2000-01-01", "%Y-%m-%d"),
+    with app.app_context():
+        db.create_all()
+        user = User(
+            username="test",
+            email="test@gmail.com",
+            phone="+380000000000",
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            birth_date=fake.date_of_birth(),
         )
-        db.session.add(self.user)
+        db.session.add(user)
         db.session.commit()
 
-    def tearDown(self):
+        yield app
+
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture
+def client(app):
+    """
+    A test client for the app.
+    """
+
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def runner(app):
+    """
+    A test runner for the app's Click commands.
+    """
+
+    return app.test_cli_runner()
+
+
+@pytest.fixture
+def user(app):
+    """
+    A user for the tests.
+    """
+
+    with app.app_context():
+        user = User.query.first()
+        yield user
+
+
+class TestUsersAPI:
+    """
+    Test users API.
+    """
+
+    def test_get_users(self, client):
         """
-        Drop the test database.
+        Test retrieving all users.
         """
 
-        db.session.delete(self.user)
-        db.session.commit()
+        response = client.get("/api/users")
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["username"] == User.query.first().username
 
-    def test_get_user(self):
+    def test_get_user(self, client, user):
         """
         Test retrieving a user with a given ID.
         """
 
-        response = self.client.get(f"/api/users/{self.user.id}")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, self.user.to_dict())
+        response = client.get(f"/api/users/{user.id}")
+        assert response.status_code == 200
+        assert response.json["username"] == user.username
 
-    def test_get_nonexistent_user(self):
+    def test_get_nonexistent_user(self, client):
         """
         Test retrieving a nonexistent user.
         """
 
-        response = self.client.get("/api/users/999")
-        self.assertEqual(response.status_code, 404)
+        response = client.get("/api/users/999")
+        assert response.status_code == 404
 
-    def test_delete_user(self):
-        """
-        Test deleting a user with a given ID.
-        """
-
-        response = self.client.delete(f"/api/users/{self.user.id}")
-        self.assertEqual(response.status_code, 204)
-        self.assertIsNone(User.query.get(self.user.id))
-
-    def test_put_user(self):
-        """
-        Test updating a user with a given ID.
-        """
-
-        updated_user_data = {
-            "username": "updateduser",
-            "email": "updateduser@test.com",
-            "phone": "+12345678901",
-            "first_name": "Updated",
-            "last_name": "User",
-            "birth_date": "2000-01-01",
-        }
-        response = self.client.put(f"/api/users/{self.user.id}", data=updated_user_data)
-        self.assertEqual(response.status_code, 201)
-        updated_user = User.query.get(self.user.id)
-        self.assertEqual(updated_user.username, updated_user_data["username"])
-        self.assertEqual(updated_user.email, updated_user_data["email"])
-        self.assertEqual(updated_user.phone, updated_user_data["phone"])
-        self.assertEqual(updated_user.first_name, updated_user_data["first_name"])
-        self.assertEqual(updated_user.last_name, updated_user_data["last_name"])
-        self.assertEqual(
-            updated_user.birth_date,
-            datetime.strptime(updated_user_data["birth_date"], "%Y-%m-%d"),
-        )
-
-    def test_put_nonexistent_user(self):
-        """
-        Test updating a nonexistent user.
-        """
-
-        updated_user_data = {
-            "username": "updateduser",
-            "email": "updateduser@test.com",
-            "phone": "+12345678901",
-            "first_name": "Updated",
-            "last_name": "User",
-            "birth_date": "2000-01-01",
-        }
-        response = self.client.put("/api/users/999", data=updated_user_data)
-        self.assertEqual(response.status_code, 404)
-
-    def test_create_user(self):
+    def test_post_user(self, client):
         """
         Test creating a new user.
         """
 
         new_user_data = {
-            "username": "newuser",
-            "email": "newuser@test.com",
-            "phone": "+12345678901",
-            "first_name": "New",
-            "last_name": "User",
-            "birth_date": "2000-01-01",
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
         }
-        response = self.client.post("/api/users", data=new_user_data)
-        self.assertEqual(response.status_code, 201)
-        new_user = User.query.filter_by(username=new_user_data["username"]).first()
-        self.assertEqual(new_user.username, new_user_data["username"])
-        self.assertEqual(new_user.email, new_user_data["email"])
-        self.assertEqual(new_user.phone, new_user_data["phone"])
-        self.assertEqual(new_user.first_name, new_user_data["first_name"])
-        self.assertEqual(new_user.last_name, new_user_data["last_name"])
-        self.assertEqual(
-            new_user.birth_date,
-            datetime.strptime(new_user_data["birth_date"], "%Y-%m-%d"),
+        response = client.post("/api/users", data=new_user_data)
+        assert response.status_code == 201
+        assert response.json["username"] == new_user_data["username"]
+        assert response.json["email"] == new_user_data["email"]
+        assert response.json["phone"] == new_user_data["phone"]
+        assert response.json["first_name"] == new_user_data["first_name"]
+        assert response.json["last_name"] == new_user_data["last_name"]
+        assert response.json["birth_date"] == datetime.strftime(
+            new_user_data["birth_date"], "%Y-%m-%d"
         )
+        assert response.json["date_created"] is not None
+        assert response.json["date_modified"] is not None
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_post_user_with_existing_username(self, client, user):
+        """
+        Test creating a new user with an existing username.
+        """
+
+        user_data = {
+            "username": user.username,
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.post("/api/users", data=user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(username=user_data["username"]).count() == 1
+
+    def test_post_user_with_existing_email(self, client, user):
+        """
+        Test creating a new user with an existing email.
+        """
+
+        user_data = {
+            "username": fake.user_name(),
+            "email": user.email,
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.post("/api/users", data=user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(email=user_data["email"]).count() == 1
+
+    def test_post_user_with_existing_phone(self, client, user):
+        """
+        Test creating a new user with an existing phone.
+        """
+
+        user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": user.phone,
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.post("/api/users", data=user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(phone=user_data["phone"]).count() == 1
+
+    def test_post_user_with_invalid_phone(self, client):
+        """
+        Test creating a new user with an invalid phone.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "invalid",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.post("/api/users", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(phone=new_user_data["phone"]).count() == 0
+
+    def test_post_user_with_invalid_birth_date(self, client):
+        """
+        Test creating a new user with an invalid birth date.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": "invalid",
+        }
+        response = client.post("/api/users", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(birth_date=new_user_data["birth_date"]).count() == 0
+
+    def test_delete_user(self, client, user):
+        """
+        Test deleting a user with a given ID.
+        """
+
+        response = client.delete(f"/api/users/{user.id}")
+        assert response.status_code == 204
+        assert User.query.filter_by(id=user.id).count() == 0
+
+    def test_put_user(self, client, user):
+        """
+        Test updating a user with a given ID.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 201
+        assert response.json["username"] == new_user_data["username"]
+        assert response.json["email"] == new_user_data["email"]
+        assert response.json["phone"] == new_user_data["phone"]
+        assert response.json["first_name"] == new_user_data["first_name"]
+        assert response.json["last_name"] == new_user_data["last_name"]
+        assert response.json["birth_date"] == datetime.strftime(
+            new_user_data["birth_date"], "%Y-%m-%d"
+        )
+        assert User.query.filter_by(id=user.id).count() == 1
+
+    def test_put_user_with_existing_username(self, client, user):
+        """
+        Test updating a user with an existing username.
+        """
+
+        new_user_data = {
+            "username": user.username,
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(username=new_user_data["username"]).count() == 1
+
+    def test_put_user_with_existing_email(self, client, user):
+        """
+        Test updating a user with an existing email.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": user.email,
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(email=new_user_data["email"]).count() == 1
+
+    def test_put_user_with_existing_phone(self, client, user):
+        """
+        Test updating a user with an existing phone.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": user.phone,
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(phone=new_user_data["phone"]).count() == 1
+
+    def test_put_user_with_invalid_phone(self, client, user):
+        """
+        Test updating a user with an invalid phone.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "invalid",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(phone=new_user_data["phone"]).count() == 0
+
+    def test_put_user_with_invalid_birth_date(self, client, user):
+        """
+        Test updating a user with an invalid birth date.
+        """
+
+        new_user_data = {
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "phone": "+380000000001",
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": "invalid",
+        }
+        response = client.put(f"/api/users/{user.id}", data=new_user_data)
+        assert response.status_code == 400
+        assert User.query.filter_by(birth_date=new_user_data["birth_date"]).count() == 0

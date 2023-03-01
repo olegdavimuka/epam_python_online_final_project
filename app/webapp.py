@@ -1,4 +1,6 @@
-# Entry point for the application.
-from . import app  # noqa: F401
-from .rest import purses, transactions, users  # noqa: F401
-from .views import home, purses, transactions, users  # noqa: F401, F811
+from app import create_app
+
+app = create_app()
+
+if __name__ == "__main__":
+    app.run()

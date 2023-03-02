@@ -1,9 +1,28 @@
+"""
+This module populates a database with fake data for testing and development purposes.
+
+Dependencies:
+    - datetime
+    - random
+    - Faker
+    - app.constants.currency
+    - app.models.purses
+    - app.models.transactions
+    - app.models.users
+
+Functions:
+    - _create_fake_users(db): creates and saves fake users to the database.
+    - _create_fake_purses(db): creates and saves fake purses to the database.
+    - _create_fake_transactions(db): creates and saves fake transactions to the database.
+    - populate_db(db): populates the database with fake data by calling the above three functions.
+
+"""
+
 from datetime import datetime
 from random import randint
 
 from faker import Faker
 
-from app import db
 from app.constants.currency import Currency
 from app.models.purses import Purse
 from app.models.transactions import Transaction
@@ -12,14 +31,23 @@ from app.models.users import User
 fake = Faker()
 
 
-def create_fake_users(db):
-    # create users
+def _create_fake_users(_db):
+    """
+    Create and save fake users to the database.
+
+    Args:
+        - _db (SQLAlchemy): database object.
+
+    """
+
     users = []
-    for _ in range(10):
+    phone = "+380000000000"
+    for _ in range(9):
+        phone = phone[:-1] + str(int(phone[-1]) + 1)
         user = User(
             username=fake.user_name(),
             email=fake.email(),
-            phone=fake.phone_number(),
+            phone=phone,
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             birth_date=fake.date_of_birth(),
@@ -27,39 +55,53 @@ def create_fake_users(db):
             date_modified=datetime.now(),
         )
         users.append(user)
-    db.session.add_all(users)
-    db.session.commit()
+    _db.session.add_all(users)
+    _db.session.commit()
 
 
-def create_fake_purses(db):
-    # create purses
+def _create_fake_purses(_db):
+    """
+    Create and save fake purses to the database.
+
+    Args:
+        - _db (SQLAlchemy): database object.
+
+    """
+
     purses = []
     users = User.query.all()
     for user in users:
         for currency in Currency:
             purse = Purse(
                 user_id=user.id,
-                currency=currency,
+                currency=currency.value,
                 balance=randint(0, 1000),
                 date_created=datetime.now(),
                 date_modified=datetime.now(),
             )
             purses.append(purse)
-    db.session.add_all(purses)
-    db.session.commit()
+    _db.session.add_all(purses)
+    _db.session.commit()
 
 
-def create_fake_transactions(db):
-    # create transactions
+def _create_fake_transactions(_db):
+    """
+    Create and save fake transactions to the database.
+
+    Args:
+        - _db (SQLAlchemy): database object.
+
+    """
+
     transactions = []
     for _ in range(10):
-        purse_from = Purse.query.order_by(db.func.random()).first()
+        purse_from = Purse.query.order_by(_db.func.random()).first()
         purse_to = (
             Purse.query.filter(
                 Purse.user_id != purse_from.user_id,
                 Purse.currency == purse_from.currency,
             )
-            .order_by(db.func.random())
+            .order_by(_db.func.random())
             .first()
         )
         amount = randint(0, purse_from.balance)
@@ -73,5 +115,19 @@ def create_fake_transactions(db):
             date_created=datetime.now(),
         )
         transactions.append(transaction)
-    db.session.add_all(transactions)
-    db.session.commit()
+    _db.session.add_all(transactions)
+    _db.session.commit()
+
+
+def populate_db(_db):
+    """
+    Populate the database with fake data.
+
+    Args:
+        - _db (SQLAlchemy): database object.
+
+    """
+
+    _create_fake_users(_db)
+    _create_fake_purses(_db)
+    _create_fake_transactions(_db)

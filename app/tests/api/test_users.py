@@ -1,82 +1,72 @@
+"""
+This module contains the tests for the users API.
+
+Dependencies:
+    - datetime
+    - faker
+    - app.models.users
+    - app.tests.api.fixtures
+
+Classes:
+    - TestUsersAPI: A class that contains the tests for the users API.
+
+"""
+
 from datetime import datetime
 
-import pytest
 from faker import Faker
 
-from app import create_app, db
-from app.config import TestingConfig
 from app.models.users import User
-from app.utils.validation import fake_phone_number
+from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+    fixture_app, fixture_client, fixture_purse, fixture_purses, fixture_runner,
+    fixture_transaction, fixture_user)
 
 fake = Faker()
 
 
-@pytest.fixture()
-def app():
-    """
-    Create and configure a new app instance for each test.
-    """
-
-    app = create_app(config_class=TestingConfig)
-
-    with app.app_context():
-        db.create_all()
-        user = User(
-            username=fake.user_name(),
-            email=fake.email(),
-            phone=fake_phone_number(),
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
-            birth_date=fake.date_of_birth(),
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        yield app
-
-    with app.app_context():
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app):
-    """
-    A test client for the app.
-    """
-
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture
-def runner(app):
-    """
-    A test runner for the app's Click commands.
-    """
-
-    return app.test_cli_runner()
-
-
-@pytest.fixture
-def user(app):
-    """
-    A user for the tests.
-    """
-
-    with app.app_context():
-        user = User.query.first()
-        yield user
-
-
 class TestUsersAPI:
     """
-    Test users API.
+    This class contains the tests for the users API.
+
+    Methods:
+        - test_get_users(client, user): tests the retrieval of all users.
+        - test_get_user(client, user): tests the retrieval of a user with a given ID.
+        - test_get_nonexistent_user(client): tests the retrieval of a nonexistent user.
+        - test_delete_user(client, user): tests the deletion of a user with a given ID.
+        - test_delete_nonexistent_user(client): tests the deletion of a nonexistent user.
+        - test_post_user(client): tests the creation of a new user.
+        - test_post_user_with_existing_username(client, user): tests the creation of a user
+        with an existing username.
+        - test_post_user_with_existing_email(client, user): tests the creation of a user
+        with an existing email.
+        - test_post_user_with_existing_phone(client, user): tests the creation of a user
+        with an existing phone number.
+        - test_post_user_with_invalid_phone(client): tests the creation of a user
+        with an invalid phone number.
+        - test_post_user_with_invalid_birth_date(client): tests the creation of a user
+        with an invalid birth date.
+        - test_put_user(client): tests the editing of a new user.
+        - test_put_user_with_existing_username(client, user): tests the editing of a user
+        with an existing username.
+        - test_put_user_with_existing_email(client, user): tests the editing of a user
+        with an existing email.
+        - test_put_user_with_existing_phone(client, user): tests the editing of a user
+        with an existing phone number.
+        - test_put_user_with_invalid_phone(client): tests the editing of a user
+        with an invalid phone number.
+        - test_put_user_with_invalid_birth_date(client): tests the editing of a user
+        with an invalid birth date.
+
     """
 
     def test_get_users(self, client, user):
         """
         Test retrieving all users.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         response = client.get("/api/users")
@@ -87,6 +77,11 @@ class TestUsersAPI:
     def test_get_user(self, client, user):
         """
         Test retrieving a user with a given ID.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         response = client.get(f"/api/users/{user.id}")
@@ -96,6 +91,10 @@ class TestUsersAPI:
     def test_get_nonexistent_user(self, client):
         """
         Test retrieving a nonexistent user.
+
+        Args:
+            - client: The test client.
+
         """
 
         response = client.get("/api/users/0")
@@ -104,6 +103,11 @@ class TestUsersAPI:
     def test_delete_user(self, client, user):
         """
         Test deleting a user with a given ID.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         response = client.delete(f"/api/users/{user.id}")
@@ -113,6 +117,10 @@ class TestUsersAPI:
     def test_delete_nonexistent_user(self, client):
         """
         Test deleting a nonexistent user.
+
+        Args:
+            - client: The test client.
+
         """
 
         response = client.delete("/api/users/0")
@@ -121,6 +129,10 @@ class TestUsersAPI:
     def test_post_user(self, client):
         """
         Test creating a new user.
+
+        Args:
+            - client: The test client.
+
         """
 
         data = {
@@ -147,6 +159,11 @@ class TestUsersAPI:
     def test_post_user_with_existing_username(self, client, user):
         """
         Test creating a new user with an existing username.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -164,6 +181,11 @@ class TestUsersAPI:
     def test_post_user_with_existing_email(self, client, user):
         """
         Test creating a new user with an existing email.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -181,6 +203,11 @@ class TestUsersAPI:
     def test_post_user_with_existing_phone(self, client, user):
         """
         Test creating a new user with an existing phone.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -198,6 +225,9 @@ class TestUsersAPI:
     def test_post_user_with_invalid_phone(self, client):
         """
         Test creating a new user with an invalid phone.
+
+        Args:
+            - client: The test client.
         """
 
         data = {
@@ -215,6 +245,9 @@ class TestUsersAPI:
     def test_post_user_with_invalid_birth_date(self, client):
         """
         Test creating a new user with an invalid birth date.
+
+        Args:
+            - client: The test client.
         """
 
         data = {
@@ -232,6 +265,11 @@ class TestUsersAPI:
     def test_put_user(self, client, user):
         """
         Test updating a user with a given ID.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -257,6 +295,11 @@ class TestUsersAPI:
     def test_put_user_with_existing_username(self, client, user):
         """
         Test updating a user with an existing username.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -274,6 +317,11 @@ class TestUsersAPI:
     def test_put_user_with_existing_email(self, client, user):
         """
         Test updating a user with an existing email.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -291,6 +339,11 @@ class TestUsersAPI:
     def test_put_user_with_existing_phone(self, client, user):
         """
         Test updating a user with an existing phone.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -308,6 +361,11 @@ class TestUsersAPI:
     def test_put_user_with_invalid_phone(self, client, user):
         """
         Test updating a user with an invalid phone.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {
@@ -325,6 +383,11 @@ class TestUsersAPI:
     def test_put_user_with_invalid_birth_date(self, client, user):
         """
         Test updating a user with an invalid birth date.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
         """
 
         data = {

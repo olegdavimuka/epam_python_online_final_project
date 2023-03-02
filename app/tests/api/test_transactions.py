@@ -1,131 +1,55 @@
-import pytest
+"""
+This module contains the tests for the transactions API.
+
+Dependencies:
+    - faker
+    - app.constants.currency
+    - app.models.api.fixtures
+
+Classes:
+    - TestTransactionsAPI: A class that contains the tests for the transactions API.
+
+"""
+
 from faker import Faker
 
-from app import create_app, db
-from app.config import TestingConfig
 from app.constants.currency import Currency
-from app.models.purses import Purse
-from app.models.transactions import Transaction
-from app.models.users import User
-from app.utils.validation import fake_phone_number
+from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+    fixture_app, fixture_client, fixture_purse, fixture_purses, fixture_runner,
+    fixture_transaction, fixture_user)
 
 fake = Faker()
 
 
-@pytest.fixture()
-def app():
-    """
-    Create and configure a new app instance for each test.
-    """
-
-    app = create_app(config_class=TestingConfig)
-
-    with app.app_context():
-        db.create_all()
-        user = User(
-            username=fake.user_name(),
-            email=fake.email(),
-            phone=fake_phone_number(),
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
-            birth_date=fake.date_of_birth(),
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        purse1 = Purse(user_id=user.id, currency=Currency.USD.value, balance=1000)
-        purse2 = Purse(user_id=user.id, currency=Currency.EUR.value, balance=1000)
-        db.session.add(purse1)
-        db.session.add(purse2)
-        db.session.commit()
-
-        transaction = Transaction(
-            purse_from_id=purse1.id,
-            purse_to_id=purse2.id,
-            purse_from_amount=100,
-        )
-
-        db.session.add(transaction)
-        db.session.commit()
-
-        yield app
-
-    with app.app_context():
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app):
-    """
-    A test client for the app.
-    """
-
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture
-def runner(app):
-    """
-    A test runner for the app's Click commands.
-    """
-
-    return app.test_cli_runner()
-
-
-@pytest.fixture
-def user(app):
-    """
-    A user for the tests.
-    """
-
-    with app.app_context():
-        user = User.query.first()
-        yield user
-
-
-@pytest.fixture
-def purse(app):
-    """
-    A purse for the tests.
-    """
-
-    with app.app_context():
-        purse = Purse.query.first()
-        yield purse
-
-
-@pytest.fixture
-def purses(app):
-    """
-    A list of purses for the tests.
-    """
-
-    with app.app_context():
-        purses = Purse.query.all()
-        yield purses
-
-
-@pytest.fixture
-def transaction(app):
-    """
-    A transaction for the tests.
-    """
-
-    with app.app_context():
-        transaction = Transaction.query.first()
-        yield transaction
-
-
 class TestTransactionsAPI:
     """
-    Test transactions API.
+    This class contains the tests for the transactions API.
+
+    Methods:
+        - test_get_transactions(client, transactions): tests the retrieval of all transactions.
+        - test_get_transaction(client, transactions): tests the retrieval of a transaction.
+        - test_get_nonexistent_transaction(client): tests the retrieval of a
+        nonexistent transaction.
+        - test_post_transaction(client): tests the creation of a transaction
+        - test_post_transaction_invalid_purse_from(client): tests the creation of a
+        transaction with an invalid purse_from.
+        - test_post_transaction_invalid_purse_to(client): tests the creation of a
+        transaction with an invalid purse_to.
+        - test_post_transaction_not_enough_funds(client): tests the creation of a
+        transaction with not enough funds.
+        - test_post_transaction_same_purse(client): tests the creation of a
+        transaction with the same purse_from and purse_to.
+
     """
 
     def test_get_transactions(self, client, transaction):
         """
         Test retrieving all transactions.
+
+        Args:
+            - client: The test client.
+            - transaction: The transaction instance.
+
         """
 
         response = client.get("/api/transactions")
@@ -148,6 +72,11 @@ class TestTransactionsAPI:
     def test_get_transaction(self, client, transaction):
         """
         Test retrieving a transaction with a given ID.
+
+        Args:
+            - client: The test client.
+            - transaction: The transaction instance.
+
         """
 
         response = client.get(f"/api/transactions/{transaction.id}")
@@ -169,6 +98,10 @@ class TestTransactionsAPI:
     def test_get_nonexistent_transaction(self, client):
         """
         Test retrieving a nonexistent transaction.
+
+        Args:
+            - client: The test client.
+
         """
 
         response = client.get("/api/transactions/0")
@@ -178,16 +111,10 @@ class TestTransactionsAPI:
         """
         Test creating a new transaction.
 
-        Before:
-            - purse1: 900 USD
-            - purse2: 1095 EUR
+        Args:
+            - client: The test client.
+            - purses: The list of purses.
 
-        Exchange rate:
-            - USD/EUR: 0.95
-
-        After:
-            - purse1: 800 USD (100 USD was sent to purse2)
-            - purse2: 1190 EUR (95 EUR was received from purse1)
         """
 
         data = {
@@ -213,6 +140,11 @@ class TestTransactionsAPI:
     def test_post_transaction_invalid_purse_from(self, client, purse):
         """
         Test creating a new transaction with an invalid purse.
+
+        Args:
+            - client: The test client.
+            - purse: The purse instance.
+
         """
 
         data = {
@@ -227,6 +159,11 @@ class TestTransactionsAPI:
     def test_post_transaction_invalid_purse_to(self, client, purse):
         """
         Test creating a new transaction with an invalid purse.
+
+        Args:
+            - client: The test client.
+            - purse: The purse instance.
+
         """
 
         data = {
@@ -241,6 +178,11 @@ class TestTransactionsAPI:
     def test_post_transaction_not_enough_funds(self, client, purses):
         """
         Test creating a new transaction with not enough funds.
+
+        Args:
+            - client: The test client.
+            - purses: The list of purses.
+
         """
 
         data = {
@@ -255,6 +197,11 @@ class TestTransactionsAPI:
     def test_post_transaction_same_purse(self, client, purse):
         """
         Test creating a new transaction with the same purse.
+
+        Args:
+            - client: The test client.
+            - purse: The purse instance.
+
         """
 
         data = {

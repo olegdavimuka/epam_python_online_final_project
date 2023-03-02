@@ -1,3 +1,15 @@
+"""
+This module contains a single class, Rates, which represents enumerated currency exchange rates.
+
+Dependencies:
+    - enum.Enum (built-in)
+    - enum.unique (built-in)
+
+Exported Classes:
+    - Rates: An enumeration of currency exchange rates.
+
+"""
+
 from enum import Enum, unique
 
 from app.constants.currency import Currency
@@ -9,14 +21,11 @@ class Rates(Enum):
     A class that contains enumerated currency exchange rates.
 
     Attributes:
-        USD (dict): the currency rates for United States dollars
-        EUR (dict): the currency rates for euros
-        GBP (dict): the currency rates for British pounds
-        UAH (dict): the currency rates for Ukrainian hryvnias
+        - USD (dict): the currency rates for United States dollars
+        - EUR (dict): the currency rates for euros
+        - GBP (dict): the currency rates for British pounds
+        - UAH (dict): the currency rates for Ukrainian hryvnias
 
-    Methods:
-        get_rate(currency_from: Currency, currency_to: Currency) -> float:
-            Returns the exchange rate between two currencies.
     """
 
     USD = {
@@ -47,14 +56,15 @@ class Rates(Enum):
     @classmethod
     def get_rate(cls, currency_from: Currency, currency_to: Currency) -> float:
         """
-        Returns the exchange rate between two currencies.
+        A method that returns the exchange rate between two currencies.
 
         Args:
-            currency_from (Currency): The currency to convert from.
-            currency_to (Currency): The currency to convert to.
+            - currency_from (Currency): The currency to convert from.
+            - currency_to (Currency): The currency to convert to.
 
         Returns:
-            float: The exchange rate between the two currencies.
+            - float: The exchange rate between the two currencies.
+
         """
 
         return cls[currency_from.name].value[currency_to]

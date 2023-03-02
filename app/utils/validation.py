@@ -1,3 +1,18 @@
+"""
+This module contains functions for validating data and generating fake data.
+
+Dependencies:
+    - random
+    - re
+
+Functions:
+    - is_valid_email(email): check if the given email address is valid.
+    - is_valid_phone_number(phone_number): validates whether a phone number is in a valid format.
+    - is_valid_date(date): validates whether a date is in a valid format.
+    - fake_phone_number(): generate a random phone number in format "+{1,2,3}xxxxxxxxxx".
+
+"""
+
 import random
 import re
 
@@ -7,10 +22,11 @@ def is_valid_email(email):
     Check if the given email address is valid.
 
     Args:
-        email (str): The email address to validate.
+        - email (str): The email address to validate.
 
     Returns:
-        bool: True if the email address is valid, False otherwise.
+        - bool: True if the email address is valid, False otherwise.
+
     """
 
     # regular expression for email validation
@@ -27,10 +43,11 @@ def is_valid_phone_number(phone_number):
     Validates whether a phone number is in a valid format.
 
     Args:
-        phone_number (str): The phone number to validate.
+        - phone_number (str): The phone number to validate.
 
     Returns:
-        bool: True if the phone number is valid, False otherwise.
+        - bool: True if the phone number is valid, False otherwise.
+
     """
 
     # Regular expression for matching phone number in format "+{1,2,3}xxxxxxxxxx"
@@ -43,10 +60,11 @@ def is_valid_date(date):
     Validates whether a date is in a valid format.
 
     Args:
-        date (str): The date to validate.
+        - date (str): The date to validate.
 
     Returns:
-        bool: True if the date is valid, False otherwise.
+        - bool: True if the date is valid, False otherwise.
+
     """
 
     # Regular expression for matching date in format "yyyy-mm-dd"
@@ -59,7 +77,8 @@ def fake_phone_number() -> str:
     Generate a random phone number in format "+{1,2,3}xxxxxxxxxx".
 
     Returns:
-        str: The generated phone number.
+        - str: The generated phone number.
+
     """
 
     country_code = random.choice([1, 3])

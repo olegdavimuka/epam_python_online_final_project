@@ -1,3 +1,20 @@
+"""
+This module defines the Transaction class which represents a Transaction entity in the database.
+It also contains functions for converting date and time objects to string representations.
+
+Dependencies:
+    - logging
+    - datetime
+    - app.db
+    - app.constants.currency
+    - app.constants.rates
+    - app.models.purses
+
+Exported classes:
+    - Transaction
+
+"""
+
 import logging
 from datetime import datetime
 
@@ -12,21 +29,22 @@ class Transaction(db.Model):
     A model that represents a transaction between two purses.
 
     Attributes:
-    __tablename__ (str): The name of the database table for this model.
-    id (int): The unique identifier of the transaction.
-    purse_from_id (int): The ID of the purse where the money comes from.
-    purse_to_id (int): The ID of the purse where the money goes to.
-    purse_from_currency (Currency): The currency of the purse where the money comes from.
-    purse_to_currency (Currency): The currency of the purse where the money goes to.
-    purse_from_amount (float): The amount of money that is being transferred from the purse.
-    purse_to_amount (float): The amount of money that is being transferred to the purse.
-    date_created (datetime): The date and time when the transaction was created.
+        - __tablename__ (str): The name of the database table for this model.
+        - id (int): The unique identifier of the transaction.
+        - purse_from_id (int): The ID of the purse where the money comes from.
+        - purse_to_id (int): The ID of the purse where the money goes to.
+        - purse_from_currency (Currency): The currency of the purse where the money comes from.
+        - purse_to_currency (Currency): The currency of the purse where the money goes to.
+        - purse_from_amount (float): The amount of money that is being transferred from the purse.
+        - purse_to_amount (float): The amount of money that is being transferred to the purse.
+        - date_created (datetime): The date and time when the transaction was created.
 
     Methods:
-    __init__(self, **kwargs): Initializes a new transaction instance.
-    __repr__(self): Returns a string representation of the transaction.
-    date_created_str(self): Converts the date_created attribute to a string.
-    to_dict(self): Returns a dictionary representation of the transaction.
+        - __init__(self, **kwargs): Initializes a new transaction instance.
+        - __repr__(self): Returns a string representation of the transaction.
+        - date_created_str(self): Converts the date_created attribute to a string.
+        - to_dict(self): Returns a dictionary representation of the transaction.
+
     """
 
     __tablename__ = "transactions"
@@ -48,14 +66,15 @@ class Transaction(db.Model):
         Initializes a new transaction instance.
 
         Args:
-        **kwargs: Dictionary containing transaction attributes.
+            - **kwargs: Dictionary containing transaction attributes.
 
         Raises:
-        ValueError: If either the purse_from_id or purse_to_id do not exist,
-        or if the purse_from_amount is greater than the balance of the purse_from.
+            - ValueError: If either the purse_from_id or purse_to_id do not exist,
+            or if the purse_from_amount is greater than the balance of the purse_from.
+
         """
 
-        super(Transaction, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         purse_from = Purse.query.filter_by(id=self.purse_from_id).first()
         if not purse_from:
@@ -75,8 +94,10 @@ class Transaction(db.Model):
 
         if purse_from.balance < self.purse_from_amount:
             logging.error(
-                f"Transaction creation failed. Purse from amount is not enough. \
-                    ({purse_from.balance} < {self.purse_from_amount}))"
+                "Transaction creation failed. Purse from amount is not enough. \
+                    (%s < %s))",
+                purse_from.balance,
+                self.purse_from_amount,
             )
             raise ValueError("Purse from amount is not enough.")
 
@@ -88,9 +109,11 @@ class Transaction(db.Model):
                 self.purse_from_currency, self.purse_to_currency
             )
             logging.info(
-                f"Transaction creation success. Purse from currency {self.purse_from_currency} \
-                    is different from purse to currency {self.purse_to_currency}. \
-                    Purse to amount is calculated using the exchange rate."
+                "Transaction creation success. Purse from currency %s \
+                    is different from purse to currency %s. \
+                    Purse to amount is calculated using the exchange rate.",
+                self.purse_from_currency,
+                self.purse_to_currency,
             )
         else:
             self.purse_to_amount = self.purse_from_amount
@@ -98,8 +121,10 @@ class Transaction(db.Model):
         purse_from.balance -= self.purse_from_amount
         purse_to.balance += self.purse_to_amount
         logging.info(
-            f"Transaction creation success. Purse from balance is decreased by {self.purse_from_amount}. \
-                Purse to balance is increased by {self.purse_to_amount}."
+            "Transaction creation success. Purse from balance is decreased by %s. \
+                Purse to balance is increased by %s.",
+            self.purse_from_amount,
+            self.purse_to_amount,
         )
         db.session.commit()
 
@@ -108,7 +133,8 @@ class Transaction(db.Model):
         Returns a string representation of the transaction.
 
         Returns:
-        str: A string representing the transaction.
+            - str: A string representing the transaction.
+
         """
 
         return f"Transaction id: {self.id}, \
@@ -124,7 +150,9 @@ class Transaction(db.Model):
         Converts the date_created attribute to a string.
 
         Returns:
-        str: A string representing the date_created attribute in the format "YYYY-MM-DD HH:MM:SS".
+            - str: A string representing the date_created
+            attribute in the format "YYYY-MM-DD HH:MM:SS".
+
         """
 
         return self.date_created.strftime("%Y-%m-%d %H:%M:%S")
@@ -134,7 +162,8 @@ class Transaction(db.Model):
         Returns a dictionary representation of the transaction.
 
         Returns:
-        dict: A dictionary representing the transaction.
+            - dict: A dictionary representing the transaction.
+
         """
 
         return {

@@ -3,9 +3,19 @@ os: linux
 dist: xenial
 python:
   - "3.9"
+
 install:
-  pip install -r requirements.txt
-# run unit tests
+  - pip install -r requirements.txt
+  - pip install coverage pylint flake8 black isort
+
 script:
   - pytest
-  
+  # Run code quality tools
+  - pylint app
+  - flake8 app
+  - black --check app
+  - isort --check-only app
+
+after_success:
+  - coverage run --source=app -m pytest
+  - coverage report

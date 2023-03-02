@@ -1,3 +1,19 @@
+"""
+This module defines the Purse class which represents a Purse entity in the database.
+It also contains functions for converting date and time objects to string representations.
+
+Dependencies:
+    - logging
+    - datetime
+    - app.db
+    - app.constants.currency
+    - app.models.users
+
+Exported classes:
+    - Purse
+
+"""
+
 import logging
 from datetime import datetime
 
@@ -11,20 +27,21 @@ class Purse(db.Model):
     A model that represents a user's purse in the financial system.
 
     Attributes:
-    __tablename__ (str): The name of the database table for this model.
-    id (int): The unique identifier of the purse.
-    user_id (int): The ID of the user who owns the purse.
-    currency (Currency): The currency type of the purse.
-    balance (float): The current balance of the purse.
-    date_created (datetime): The date and time when the purse was created.
-    date_modified (datetime): The date and time when the purse was last modified.
+        - __tablename__ (str): The name of the database table for this model.
+        - id (int): The unique identifier of the purse.
+        - user_id (int): The ID of the user who owns the purse.
+        - currency (Currency): The currency type of the purse.
+        - balance (float): The current balance of the purse.
+        - date_created (datetime): The date and time when the purse was created.
+        - date_modified (datetime): The date and time when the purse was last modified.
 
     Methods:
-    __init__(self, **kwargs): Initializes a new purse instance.
-    __repr__(self): Returns a string representation of the purse.
-    date_created_str(self): Converts the date_created attribute to a string.
-    date_modified_str(self): Converts the date_modified attribute to a string.
-    to_dict(self): Returns a dictionary representation of the purse.
+        - __init__(self, **kwargs): Initializes a new purse instance.
+        - __repr__(self): Returns a string representation of the purse.
+        - date_created_str(self): Converts the date_created attribute to a string.
+        - date_modified_str(self): Converts the date_modified attribute to a string.
+        - to_dict(self): Returns a dictionary representation of the purse.
+
     """
 
     __tablename__ = "purses"
@@ -44,14 +61,15 @@ class Purse(db.Model):
         Initializes a new purse instance.
 
         Args:
-        **kwargs: A dictionary of purse attributes.
+            - **kwargs: A dictionary of purse attributes.
 
         Raises:
-        ValueError: If the user_id attribute is not valid,
-        or the currency attribute is not valid.
+            - ValueError: If the user_id attribute is not valid,
+            or the currency attribute is not valid.
+
         """
 
-        super(Purse, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         user = User.query.filter_by(id=self.user_id).first()
         if not user:
@@ -67,7 +85,8 @@ class Purse(db.Model):
         Returns a string representation of the purse.
 
         Returns:
-        str: A string representing the purse.
+            - str: A string representing the purse.
+
         """
 
         return f"Purse id: {self.id}, \
@@ -80,7 +99,9 @@ class Purse(db.Model):
         Converts the date_created attribute to a string.
 
         Returns:
-        str: A string representing the date_created attribute in the format "YYYY-MM-DD HH:MM:SS".
+            - str: A string representing the date_created
+            attribute in the format "YYYY-MM-DD HH:MM:SS".
+
         """
 
         return self.date_created.strftime("%Y-%m-%d %H:%M:%S")
@@ -90,7 +111,9 @@ class Purse(db.Model):
         Converts the date_modified attribute to a string.
 
         Returns:
-        str: A string representing the date_modified attribute in the format "YYYY-MM-DD HH:MM:SS".
+            - str: A string representing the date_modified
+            attribute in the format "YYYY-MM-DD HH:MM:SS".
+
         """
 
         return self.date_modified.strftime("%Y-%m-%d %H:%M:%S")
@@ -100,7 +123,8 @@ class Purse(db.Model):
         Returns a dictionary representation of the purse.
 
         Returns:
-        dict: A dictionary representing the purse.
+            - dict: A dictionary representing the purse.
+
         """
 
         return {

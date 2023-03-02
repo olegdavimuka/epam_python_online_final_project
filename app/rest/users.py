@@ -31,8 +31,7 @@ from flask_restful import Resource, abort, reqparse
 from app import db
 from app.models.purses import Purse
 from app.models.users import User
-from app.utils.validation import (is_valid_date, is_valid_email,
-                                  is_valid_phone_number)
+from app.utils.validation import is_valid_date, is_valid_email, is_valid_phone_number
 
 
 def _get_user_or_abort_if_doesnt_exist(_id):

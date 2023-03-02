@@ -50,11 +50,17 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
 
     from app.rest.purses import (  # pylint: disable=import-outside-toplevel, cyclic-import
-        PursesAPI, PursesListAPI)
+        PursesAPI,
+        PursesListAPI,
+    )
     from app.rest.transactions import (  # pylint: disable=import-outside-toplevel, cyclic-import
-        TransactionsAPI, TransactionsListAPI)
+        TransactionsAPI,
+        TransactionsListAPI,
+    )
     from app.rest.users import (  # pylint: disable=import-outside-toplevel, cyclic-import
-        UsersAPI, UsersListAPI)
+        UsersAPI,
+        UsersListAPI,
+    )
 
     api = Api(prefix="/api")
     api.add_resource(UsersListAPI, "/users")

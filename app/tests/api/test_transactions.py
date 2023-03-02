@@ -15,8 +15,14 @@ from faker import Faker
 
 from app.constants.currency import Currency
 from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
-    fixture_app, fixture_client, fixture_purse, fixture_purses, fixture_runner,
-    fixture_transaction, fixture_user)
+    fixture_app,
+    fixture_client,
+    fixture_purse,
+    fixture_purses,
+    fixture_runner,
+    fixture_transaction,
+    fixture_user,
+)
 
 fake = Faker()
 

@@ -76,7 +76,6 @@ def create_app(config_class=Config):  # pylint: disable=too-many-locals
         UserBlueprint,
     )
 
-    
     user_bp = UserBlueprint("user_bp", __name__, url_prefix="/users")
     app.register_blueprint(user_bp)
 

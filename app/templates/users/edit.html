@@ -35,15 +35,17 @@
 
 {% if user.date_created %}
 <div class="form-floating mb-3">
-  <input readonly class="form-control {% if form.date_created.errors %} is-invalid {% endif %}" id="id-{{ form.date_created.name }}" type="text" placeholder="100" name="{{ form.date_created.name }}" value="{{ form.date_created.data or user.date_created_str() or '' }}" />
+  <input disabled class="form-control {% if form.date_created.errors %} is-invalid {% endif %}" id="id-{{ form.date_created.name }}" type="text" placeholder="100" name="{{ form.date_created.name }}" value="{{ form.date_created.data or user.date_created_str() or '' }}" />
   <label for="{{ form.date_created.name }}">{{ form.date_created.errors|join(' ') or 'Date created' }}</label>
 </div>
 
 <div class="form-floating mb-3">
-  <input readonly class="form-control {% if form.date_modified.errors %} is-invalid {% endif %}" id="id-{{ form.date_modified.name }}" type="text" placeholder="100" name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or user.date_modified_str() or '' }}" />
+  <input disabled class="form-control {% if form.date_modified.errors %} is-invalid {% endif %}" id="id-{{ form.date_modified.name }}" type="text" placeholder="100" name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or user.date_modified_str() or '' }}" />
   <label for="{{ form.date_modified.name }}">{{ form.date_modified.errors|join(' ') or 'Date modified' }}</label>
 </div>
 {% endif %}
+
+<button class="btn btn-primary" type="submit">Save</button>
 
 {% endblock %}
 

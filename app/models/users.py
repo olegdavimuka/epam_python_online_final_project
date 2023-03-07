@@ -35,11 +35,12 @@ class User(db.Model):
         - purses (list): A list of purses owned by the User.
 
     Methods:
-        - __init__(self, **kwargs): Initializes a new User instance.
         - birth_date_str(self): Converts the birth_date attribute to a string.
         - date_created_str(self): Converts the date_created attribute to a string.
         - date_modified_str(self): Converts the date_modified attribute to a string.
+        - __repr__(self): Returns a string representation of the User.
         - to_dict(self): Returns a dictionary representation of the User.
+        - update(self, **kwargs): Updates the User with the provided keyword arguments.
     """
 
     __tablename__ = "users"

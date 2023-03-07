@@ -10,7 +10,7 @@ Functions:
     - is_valid_email(email): check if the given email address is valid.
     - is_valid_phone_number(phone_number): validates whether a phone number is in a valid format.
     - is_free_username(username, _id): check if the given username is free.
-    - is_free_email(email, _id): check if the given email address is free.    
+    - is_free_email(email, _id): check if the given email address is free.
     - is_free_phone_number(phone_number, _id): validates whether a phone number is free.
     - is_valid_date(date): validates whether a date is in a valid format.
     - fake_phone_number(): generate a random phone number in format "+{1,2,3}xxxxxxxxxx".

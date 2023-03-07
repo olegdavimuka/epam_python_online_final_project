@@ -3,23 +3,19 @@ This module defines the Purse class which represents a Purse entity in the datab
 It also contains functions for converting date and time objects to string representations.
 
 Dependencies:
-    - logging
     - datetime
     - app.db
     - app.constants.currency
-    - app.models.users
 
 Exported classes:
     - Purse
 
 """
 
-import logging
 from datetime import datetime
 
 from app import db
 from app.constants.currency import Currency
-from app.models.users import User
 
 
 class Purse(db.Model):
@@ -39,11 +35,11 @@ class Purse(db.Model):
         - transactions_to (list): A list of transactions where the purse is the recipient.
 
     Methods:
-        - __init__(self, **kwargs): Initializes a new purse instance.
         - __repr__(self): Returns a string representation of the purse.
         - date_created_str(self): Converts the date_created attribute to a string.
         - date_modified_str(self): Converts the date_modified attribute to a string.
         - to_dict(self): Returns a dictionary representation of the purse.
+        - update(self, **kwargs): Updates the purse with the provided keyword arguments.
 
     """
 
@@ -74,30 +70,6 @@ class Purse(db.Model):
         backref="purse_to",
         lazy="dynamic",
     )
-
-    def __init__(self, **kwargs):
-        """
-        Initializes a new purse instance.
-
-        Args:
-            - **kwargs: A dictionary of purse attributes.
-
-        Raises:
-            - ValueError: If the user_id attribute is not valid,
-            or the currency attribute is not valid.
-
-        """
-
-        super().__init__(**kwargs)
-
-        user = User.query.filter_by(id=self.user_id).first()
-        if not user:
-            logging.error("Purse creation failed. User doesn't exist.")
-            raise ValueError("User doesn't exist.")
-
-        if self.currency not in [c.value for c in Currency]:
-            logging.error("Purse creation failed. Currency is not valid.")
-            raise ValueError("Currency is not valid.")
 
     def __repr__(self):
         """
@@ -154,3 +126,22 @@ class Purse(db.Model):
             "date_created": self.date_created_str(),
             "date_modified": self.date_modified_str(),
         }
+
+    def update(self, **kwargs):
+        """
+        Updates the Purse object with the given keyword arguments. The date_created and date_modified
+        attributes are removed from the dictionary.
+
+        Parameters:
+            - **kwargs: Keyword arguments to update the Purse object with.
+
+        """
+
+        if "date_created" in kwargs:
+            kwargs.pop("date_created")
+
+        if "date_modified" in kwargs:
+            kwargs.pop("date_modified")
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)

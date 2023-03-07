@@ -13,7 +13,6 @@ Dependencies:
     - app.forms.users
     - app.models.purses
     - app.models.users
-    - app.utils.paginator
 
 Exported classes:
     - UserBlueprint
@@ -43,10 +42,11 @@ def make_query():
     provided in the request. The query is then paginated and returned.
 
     Returns:
-        - users (list): A list of users.
+        - users (query): A query for the list endpoint.
 
     """
 
+    logging.info("making users query: start")
     users_query = (
         db.session.query(
             User,
@@ -55,7 +55,9 @@ def make_query():
             ),
         )
         .outerjoin(Purse)
-        .filter(User.is_active == True)  # pylint: disable=singleton-comparison
+        .filter(
+            User.is_active == True  # pylint: disable=singleton-comparison # noqa: E712
+        )
         .group_by(User.id)
     )
 
@@ -68,6 +70,7 @@ def make_query():
             User.first_name.ilike(f"%{search}%"),
             User.last_name.ilike(f"%{search}%"),
         ]
+        logging.info("making users query: search")
         users_query = users_query.filter(sa.or_(*checks))
 
     if (
@@ -75,6 +78,7 @@ def make_query():
         and request.args.get("birth_date") != ""
     ):
         birth_date = request.args.get("birth_date").split(" - ")
+        logging.info("making users query: filter by birth_date")
         users_query = users_query.filter(
             sa.and_(User.birth_date >= birth_date[0], User.birth_date <= birth_date[-1])
         )
@@ -84,6 +88,7 @@ def make_query():
         and request.args.get("date_created") != ""
     ):
         date_created = request.args.get("date_created").split(" - ")
+        logging.info("making users query: filter by date_created")
         users_query = users_query.filter(
             sa.and_(
                 User.date_created >= date_created[0] + " 00:00:00",
@@ -96,6 +101,7 @@ def make_query():
         and request.args.get("date_modified") != ""
     ):
         date_modified = request.args.get("date_modified").split(" - ")
+        logging.info("making users query: filter by date_modified")
         users_query = users_query.filter(
             sa.and_(
                 User.date_modified >= date_modified[0] + " 00:00:00",
@@ -103,6 +109,7 @@ def make_query():
             )
         )
 
+    logging.info("making users query: finish")
     return users_query
 
 
@@ -159,9 +166,6 @@ class UserBlueprint(Blueprint):
         """
         Retrieves a list of all users. The list is paginated and returned.
 
-        Returns:
-            - users (list): A list of all users.
-
         """
 
         context = {}
@@ -177,7 +181,7 @@ class UserBlueprint(Blueprint):
         context["pagination"] = users.paginate(
             page=context["page"], per_page=PER_PAGE, error_out=False
         )
-        context["endpoint"] = "users/list.html"
+        context["url"] = "user_bp.list"
 
         logging.info("Retrieved all users. Count: %s.", len(users.all()))
         return render_template("users/list.html", **context)
@@ -188,9 +192,6 @@ class UserBlueprint(Blueprint):
 
         Args:
             - _id (int): The id of the user to retrieve.
-
-        Returns:
-            - user (User): The user with the specified id.
 
         """
 

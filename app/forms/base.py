@@ -32,6 +32,6 @@ class BaseSearchForm(FlaskForm):
 
     """
 
-    search = StringField("Search", validators=[Optional()])
+    search = StringField(validators=[Optional()])
     date_created = StringField(validators=[Optional()])
     date_modified = StringField(validators=[Optional()])

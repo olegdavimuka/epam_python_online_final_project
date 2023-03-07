@@ -3,6 +3,7 @@
 
 {% block title %} Users {% endblock %}
 {% block model_name %} Users {% endblock %}
+{% block search_url %} <form action="{{ url_for('user_bp.list') }}" method="GET"> {% endblock %}
 {% block new_instance_link %} {{ url_for('user_bp.edit', _id=0) }} {% endblock %}
 {% block search_form %} {{ search_form() }} {% endblock %}
 
@@ -43,7 +44,7 @@
         <td class="p-3 align-middle">
           {% if len(user.purses) != 0 %}
             {% for purse in user.purses %}
-              <a href="{{ url_for('purse_edit', id=purse.id) }}">{{ purse.id }}</a>
+              <a href="{{ url_for('purse_bp.edit', _id=purse.id) }}">{{ purse.id }}</a>
               {% if not loop.last %}|{% endif %}
             {% endfor %}
           {% else %}

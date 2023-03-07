@@ -72,12 +72,17 @@ def create_app(config_class=Config):  # pylint: disable=too-many-locals
 
     api.init_app(app)
 
+    from app.views.purses import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        PurseBlueprint,
+    )
     from app.views.users import (  # pylint: disable=import-outside-toplevel, cyclic-import
         UserBlueprint,
     )
 
     user_bp = UserBlueprint("user_bp", __name__, url_prefix="/users")
+    purse_bp = PurseBlueprint("purse_bp", __name__, url_prefix="/purses")
     app.register_blueprint(user_bp)
+    app.register_blueprint(purse_bp)
 
     setup_logging()
 

@@ -134,7 +134,7 @@ class PursesAPI(Resource):
         """
 
         purse = _get_purse_or_abort_if_doesnt_exist(_id)
-        db.session.delete(purse)
+        purse.is_active = False
         logging.info("Deleted purse %s.", _id)
         db.session.commit()
         return "", 204

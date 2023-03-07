@@ -34,6 +34,9 @@ class Purse(db.Model):
         - balance (float): The current balance of the purse.
         - date_created (datetime): The date and time when the purse was created.
         - date_modified (datetime): The date and time when the purse was last modified.
+        - is_active (bool): A flag indicating whether the purse is active.
+        - transactions_from (list): A list of transactions where the purse is the sender.
+        - transactions_to (list): A list of transactions where the purse is the recipient.
 
     Methods:
         - __init__(self, **kwargs): Initializes a new purse instance.
@@ -54,6 +57,22 @@ class Purse(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date_modified = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+
+    transactions_from = db.relationship(
+        "Transaction",
+        foreign_keys="Transaction.purse_from_id",
+        backref="purse_from",
+        lazy="dynamic",
+    )
+
+    transactions_to = db.relationship(
+        "Transaction",
+        foreign_keys="Transaction.purse_to_id",
+        backref="purse_to",
+        lazy="dynamic",
     )
 
     def __init__(self, **kwargs):

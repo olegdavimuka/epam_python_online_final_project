@@ -118,7 +118,8 @@ class TestUsersAPI:
 
         response = client.delete(f"/api/users/{user.id}")
         assert response.status_code == 204
-        assert User.query.filter_by(id=user.id).count() == 0
+        assert User.query.filter_by(id=user.id).count() == 1
+        assert User.query.filter_by(id=user.id).first().is_active is False
 
     def test_delete_nonexistent_user(self, client):
         """

@@ -1,0 +1,11 @@
+{% if pagination.total %}
+
+  <div class="d-flex justify-content-center">
+    <a class="btn btn-falcon-default btn-sm me-2 {% if not pagination.has_prev %} disabled {% endif %}" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Prev" {% if pagination.has_prev %} href="{{ url_for('user_bp.list', page=number) }}" {% endif %}><span class="fas fa-chevron-left"></span></a>
+      {% for p in pagination.iter_pages() %}
+        <a class="btn btn-sm btn-falcon-default {{ 'text-primary' if p == pagination.page }} me-2" href="{{ url_for('user_bp.list', page=p) }}">{{ p }}</a> 
+      {% endfor %}
+    <a class="btn btn-falcon-default btn-sm{% if not pagination.has_next %} disabled {% endif %}" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Next" {% if pagination.has_next %} href="{{ url_for('user_bp.list', page=pagination.next_num) }}" {% endif %}><span class="fas fa-chevron-right"></span></a>
+  </div>
+
+{% endif %}

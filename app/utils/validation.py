@@ -4,10 +4,14 @@ This module contains functions for validating data and generating fake data.
 Dependencies:
     - random
     - re
+    - app.models.users
 
 Functions:
     - is_valid_email(email): check if the given email address is valid.
     - is_valid_phone_number(phone_number): validates whether a phone number is in a valid format.
+    - is_free_username(username, _id): check if the given username is free.
+    - is_free_email(email, _id): check if the given email address is free.    
+    - is_free_phone_number(phone_number, _id): validates whether a phone number is free.
     - is_valid_date(date): validates whether a date is in a valid format.
     - fake_phone_number(): generate a random phone number in format "+{1,2,3}xxxxxxxxxx".
 
@@ -16,8 +20,10 @@ Functions:
 import random
 import re
 
+from app.models.users import User
 
-def is_valid_email(email):
+
+def is_valid_email(email) -> bool:
     """
     Check if the given email address is valid.
 
@@ -38,7 +44,7 @@ def is_valid_email(email):
     return match is not None
 
 
-def is_valid_phone_number(phone_number):
+def is_valid_phone_number(phone_number) -> bool:
     """
     Validates whether a phone number is in a valid format.
 
@@ -55,7 +61,56 @@ def is_valid_phone_number(phone_number):
     return re.match(regex, phone_number) is not None
 
 
-def is_valid_date(date):
+def is_free_username(username, _id) -> bool:
+    """
+    Check if the given username is free.
+
+    Args:
+        - username (str): The username to validate.
+
+    Returns:
+        - bool: True if the username is free, False otherwise.
+
+    """
+
+    return (
+        User.query.filter_by(username=username).filter(User.id != _id).first() is None
+    )
+
+
+def is_free_email(email, _id) -> bool:
+    """
+    Check if the given email address is free.
+
+    Args:
+        - email (str): The email address to validate.
+
+    Returns:
+        - bool: True if the email address is free, False otherwise.
+
+    """
+
+    return User.query.filter_by(email=email).filter(User.id != _id).first() is None
+
+
+def is_free_phone_number(phone_number, _id) -> bool:
+    """
+    Check if the given phone number is free.
+
+    Args:
+        - phone_number (str): The phone number to validate.
+
+    Returns:
+        - bool: True if the phone number is free, False otherwise.
+
+    """
+
+    return (
+        User.query.filter_by(phone=phone_number).filter(User.id != _id).first() is None
+    )
+
+
+def is_valid_date(date) -> bool:
     """
     Validates whether a date is in a valid format.
 

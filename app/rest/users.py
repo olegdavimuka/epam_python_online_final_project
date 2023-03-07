@@ -226,10 +226,10 @@ class UsersAPI(Resource):
 
         user = _get_user_or_abort_if_doesnt_exist(_id)
         purses = Purse.query.filter_by(user_id=_id).all()
-        db.session.delete(user)
+        user.is_active = False
         logging.info("Deleted user %s. Deleting user's purses.", _id)
         for purse in purses:
-            db.session.delete(purse)
+            purse.is_active = False
             logging.info("Deleted purse %s.", purse.id)
         logging.info("Deleted user %s's purses.", _id)
         db.session.commit()

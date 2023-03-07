@@ -106,7 +106,8 @@ class TestPursesAPI:
 
         response = client.delete(f"/api/purses/{purse.id}")
         assert response.status_code == 204
-        assert Purse.query.filter_by(id=purse.id).count() == 0
+        assert Purse.query.filter_by(id=purse.id).count() == 1
+        assert Purse.query.filter_by(id=purse.id).first().is_active is False
 
     def test_delete_nonexistent_purse(self, client):
         """

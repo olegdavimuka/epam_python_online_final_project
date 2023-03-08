@@ -1,7 +1,7 @@
 {% if pagination.total %}
 
   <div class="d-flex justify-content-center">
-    <a class="btn btn-falcon-default btn-sm me-2 {% if not pagination.has_prev %} disabled {% endif %}" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Prev" {% if pagination.has_prev %} href="{{ url_for(url, page=number) }}" {% endif %}><span class="fas fa-chevron-left"></span></a> <!-- TODO: change href for dynamic -->
+    <a class="btn btn-falcon-default btn-sm me-2 {% if not pagination.has_prev %} disabled {% endif %}" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Prev" {% if pagination.has_prev %} href="{{ url_for(url, page=number) }}" {% endif %}><span class="fas fa-chevron-left"></span></a>
       {% for p in pagination.iter_pages() %}
         <a class="btn btn-sm btn-falcon-default {{ 'text-primary' if p == pagination.page }} me-2" href="{{ url_for(url, page=p) }}">{{ p }}</a> 
       {% endfor %}

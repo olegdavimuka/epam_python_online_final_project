@@ -70,10 +70,13 @@ def fixture_app():
         db.session.add(purse2)
         db.session.commit()
 
-        transaction = Transaction(
-            purse_from_id=purse1.id,
-            purse_to_id=purse2.id,
-            purse_from_amount=100,
+        transaction = Transaction()
+        transaction.update(
+            **{
+                "purse_from_id": purse1.id,
+                "purse_to_id": purse2.id,
+                "purse_from_amount": 100,
+            }
         )
 
         db.session.add(transaction)

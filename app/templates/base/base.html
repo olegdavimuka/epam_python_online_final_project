@@ -21,10 +21,10 @@
 
     <!-- Navbar -->
     <div class="navbar p-3">
-      <a href="#" class="navbar-brand">Home</a>
+      <a href="{{ url_for('home') }}" class="navbar-brand">Home</a>
       <a href="{{ url_for('user_bp.list') }}" class="navbar-item">Users</a>
       <a href="{{ url_for('purse_bp.list') }}" class="navbar-item">Purses</a>
-      <a href="#" class="navbar-item">Transactions</a>
+      <a href="{{ url_for('transaction_bp.list') }}" class="navbar-item">Transactions</a>
     </div>
     <!-- Navbar -->
 

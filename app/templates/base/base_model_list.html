@@ -98,11 +98,12 @@
       function initializeDateTimePicker(field) {
         let dateArray = []
         let minYear = 2023
-        // TODO: fix this
-        {# if (field === 'birth_date') {
+        {% if form.birth_date %}
+        if (field === 'birth_date') {
           dateArray = '{{ form.birth_date.data or '' }}'.split(' - ')
           minYear = 1900
-        } #}      
+        }      
+        {% endif %}
         if (field === 'date_created') {
           dateArray = '{{ form.date_created.data or '' }}'.split(' - ')
         }

@@ -18,8 +18,6 @@
       <th class="p-3 align-middle white-space-nowrap">Balance</th>
       <th class="p-3 align-middle white-space-nowrap">Date created</th>
       <th class="p-3 align-middle white-space-nowrap">Date modified</th>
-      <!-- <th class="p-3 align-middle white-space-nowrap">Total Withdrawn</th> -->
-      <!-- <th class="p-3 align-middle white-space-nowrap">Total Deposited</th> -->
       <th class="p-3 align-middle white-space-nowrap">Transactions Out</th>
       <th class="p-3 align-middle white-space-nowrap">Transactions In</th>
       <th class="p-3 align-middle text-center" style="width: 10%;">Actions</th>
@@ -30,7 +28,6 @@
   <!-- TABLE CONTENT -->
   <tbody class="list" id="table-orders-body">
     {% for purse in pagination.items %}
-    {# {% for purse, withdrawn, deposited in purses %} #}
       <tr class="btn-reveal-trigger">
         <td class="p-3 align-middle"><a href="{{ url_for('purse_bp.edit', _id=purse.id) }}"> {{ purse.id }}</td>
         <td class="p-3 align-middle"><a href="{{ url_for('user_bp.edit', _id=purse.user_id) }}"> {{ purse.user_id }}</td>
@@ -38,12 +35,10 @@
         <td class="p-3 align-middle">{{ purse.balance }}</td>
         <td class="p-3 align-middle">{{ purse.date_created_str() }}</td>
         <td class="p-3 align-middle">{{ purse.date_modified_str() }}</td>
-        <!-- <td class="p-3 align-middle">{{ withdrawn }}</td> -->
-        <!-- <td class="p-3 align-middle">{{ deposited }}</td> -->
         <td class="p-3 align-middle">
           {% if purse.transactions_from.first() is not none %}
             {% for transaction in purse.transactions_from %}
-              <a href="{{ url_for('transaction_edit', id=transaction.id) }}">{{ transaction.id }}</a>
+              <a href="{{ url_for('transaction_bp.edit', _id=transaction.id) }}">{{ transaction.id }}</a>
               {% if not loop.last %}|{% endif %}
             {% endfor %}
           {% else %}
@@ -53,7 +48,7 @@
         <td class="p-3 align-middle">
           {% if purse.transactions_to.first() is not none %}            
             {% for transaction in purse.transactions_to %}
-              <a href="{{ url_for('transaction_edit', id=transaction.id) }}">{{ transaction.id }}</a>
+              <a href="{{ url_for('transaction_bp.edit', _id=transaction.id) }}">{{ transaction.id }}</a>
               {% if not loop.last %}|{% endif %}
             {% endfor %}
           {% else %}

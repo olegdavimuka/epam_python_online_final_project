@@ -1,0 +1,66 @@
+{%- macro search_form() -%}
+{% set filter_show = form.purse_from_id.data or form.purse_to_id.data or form.purse_from_currency.data or form.purse_to_currency.data or form.date_created.data or form.date_modified.data %}
+<div class="collapse {% if filter_show %} show {% endif %}" id="filter">
+    <form class="form-inline mr-auto"  method="GET" id="search-form">
+        <div class="row p-2">
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.purse_from_id.name }}">Purse from ID</label>
+                <select class="form-select" id="id-{{ form.purse_from_id.name }}" name="{{ form.purse_from_id.name }}">
+                    <option value="">All</option>
+                    {% for p in purses %}
+                        <option value="{{ p.id }}" {% if form.purse_from_id.data == p.id %} selected {% endif %}>{{ p.id }}: {{ Currency(p.currency).value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.purse_to_id.name }}">Purse to ID</label>
+                <select class="form-select" id="id-{{ form.purse_to_id.name }}" name="{{ form.purse_to_id.name }}">
+                    <option value="">All</option>
+                    {% for p in purses %}
+                        <option value="{{ p.id }}" {% if form.purse_to_id.data == p.id %} selected {% endif %}>{{ p.id }}: {{ Currency(p.currency).value }}</option>
+                    {% endfor %}
+                </select>
+            </div>            
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.purse_from_currency.name }}">Purse from currency</label>
+                <select class="form-select" id="id-{{ form.purse_from_currency.name }}" name="{{ form.purse_from_currency.name }}">
+                    <option value="">All</option>
+                    {% for c in Currency %}
+                        <option value="{{ c.value }}" {% if form.purse_from_currency.data == c %} selected {% endif %}>{{ Currency(c).value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.purse_to_currency.name }}">Purse to currency</label>
+                <select class="form-select" id="id-{{ form.purse_to_currency.name }}" name="{{ form.purse_to_currency.name }}">
+                    <option value="">All</option>
+                    {% for c in Currency %}
+                        <option value="{{ c.value }}" {% if form.purse_to_currency.data == c %} selected {% endif %}>{{ Currency(c).value }}</option>
+                    {% endfor %}
+                </select>
+            </div>            
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.date_modified.id }}">Date Created</label>
+                <input name="{{ form.date_created.name }}" value="{{ form.date_created.data or '' }}" class="form-control date_created-datetimepicker" id="timepicker2" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+            </div>
+            
+            <div class="col-md-4 py-2">
+                <label for="{{ form.date_modified.id }}">Date Modified</label>
+                <input name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or '' }}" class="form-control date_modified-datetimepicker" id="timepicker2" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+            </div>
+
+            <div class="col-md-2 py-2">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <span class="fas fa-search"></span>
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+{%- endmacro -%}

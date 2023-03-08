@@ -94,7 +94,7 @@ def _create_fake_transactions(_db):
     """
 
     transactions = []
-    for _ in range(10):
+    for _ in range(100):
         purse_from = Purse.query.order_by(_db.func.random()).first()
         purse_to = (
             Purse.query.filter(

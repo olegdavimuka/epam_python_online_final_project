@@ -40,10 +40,10 @@ class Transaction(db.Model):
         - date_created (datetime): The date and time when the transaction was created.
 
     Methods:
-        - __init__(self, **kwargs): Initializes a new transaction instance.
         - __repr__(self): Returns a string representation of the transaction.
         - date_created_str(self): Converts the date_created attribute to a string.
         - to_dict(self): Returns a dictionary representation of the transaction.
+        - update(self, **args): Updates the transaction with the provided values.
 
     """
 
@@ -60,73 +60,6 @@ class Transaction(db.Model):
     purse_to_amount = db.Column(db.Float, nullable=False, default=0.0)
 
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    def __init__(self, **kwargs):
-        """
-        Initializes a new transaction instance.
-
-        Args:
-            - **kwargs: Dictionary containing transaction attributes.
-
-        Raises:
-            - ValueError: If either the purse_from_id or purse_to_id do not exist,
-            or if the purse_from_amount is greater than the balance of the purse_from.
-
-        """
-
-        super().__init__(**kwargs)
-
-        purse_from = Purse.query.filter_by(id=self.purse_from_id).first()
-        if not purse_from:
-            logging.error("Transaction creation failed. Purse from doesn't exist.")
-            raise ValueError("Purse from doesn't exist.")
-
-        purse_to = Purse.query.filter_by(id=self.purse_to_id).first()
-        if not purse_to:
-            logging.error("Transaction creation failed. Purse to doesn't exist.")
-            raise ValueError("Purse to doesn't exist.")
-
-        if purse_from == purse_to:
-            logging.error(
-                "Transaction creation failed. Purse from and purse to are the same."
-            )
-            raise ValueError("Purse from and purse to are the same.")
-
-        if purse_from.balance < self.purse_from_amount:
-            logging.error(
-                "Transaction creation failed. Purse from amount is not enough. \
-                    (%s < %s))",
-                purse_from.balance,
-                self.purse_from_amount,
-            )
-            raise ValueError("Purse from amount is not enough.")
-
-        self.purse_from_currency = purse_from.currency
-        self.purse_to_currency = purse_to.currency
-
-        if purse_from.currency != purse_to.currency:
-            self.purse_to_amount = self.purse_from_amount * Rates.get_rate(
-                self.purse_from_currency, self.purse_to_currency
-            )
-            logging.info(
-                "Transaction creation success. Purse from currency %s \
-                    is different from purse to currency %s. \
-                    Purse to amount is calculated using the exchange rate.",
-                self.purse_from_currency,
-                self.purse_to_currency,
-            )
-        else:
-            self.purse_to_amount = self.purse_from_amount
-
-        purse_from.balance -= self.purse_from_amount
-        purse_to.balance += self.purse_to_amount
-        logging.info(
-            "Transaction creation success. Purse from balance is decreased by %s. \
-                Purse to balance is increased by %s.",
-            self.purse_from_amount,
-            self.purse_to_amount,
-        )
-        db.session.commit()
 
     def __repr__(self):
         """
@@ -176,3 +109,51 @@ class Transaction(db.Model):
             "purse_to_amount": self.purse_to_amount,
             "date_created": self.date_created_str(),
         }
+
+    def update(self, **kwargs):
+        """
+        Updates the Transaction object with the given keyword arguments
+
+        Parameters:
+            - **kwargs: Keyword arguments to update the Transaction object with.
+
+        """
+        purse_from = Purse.query.get_or_404(kwargs["purse_from_id"])
+        purse_to = Purse.query.get_or_404(kwargs["purse_to_id"])
+        purse_from_amount = float(kwargs["purse_from_amount"])
+
+        kwargs["purse_from_currency"] = purse_from.currency
+        kwargs["purse_to_currency"] = purse_to.currency
+
+        if kwargs["purse_from_currency"] != kwargs["purse_to_currency"]:
+            kwargs["purse_to_amount"] = purse_from_amount * Rates.get_rate(
+                kwargs["purse_from_currency"], kwargs["purse_to_currency"]
+            )
+            logging.info(
+                "Transaction creation success. Purse from currency %s \
+                    is different from purse to currency %s. \
+                    Purse to amount is calculated using the exchange rate.",
+                kwargs["purse_from_currency"],
+                kwargs["purse_to_currency"],
+            )
+        else:
+            kwargs["purse_to_amount"] = purse_from_amount
+
+        if purse_from.currency != purse_to.currency:
+            purse_to_amount = kwargs["purse_to_amount"]
+            purse_to.update(balance=purse_to.balance + purse_to_amount)
+            purse_from.update(balance=purse_from.balance - purse_from_amount)
+        else:
+            purse_to.update(balance=purse_to.balance + purse_from_amount)
+            purse_from.update(balance=purse_from.balance - purse_from_amount)
+
+        logging.info(
+            "Transaction creation success. Purse from balance is decreased by %s. \
+                Purse to balance is increased by %s.",
+            purse_from_amount,
+            kwargs["purse_to_amount"],
+        )
+        db.session.commit()
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)

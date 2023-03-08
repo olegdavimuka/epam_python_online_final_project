@@ -48,17 +48,6 @@ def make_query():
 
     """
 
-    # purses_query = db.session.query(
-    #     Purse,
-    #     sa.func.sum(sa.case().when(Transaction.purse_from_id == Purse.id,
-    #         then=Transaction.purse_from_amount).else_(0)).label("withdrawn"),
-    #     sa.func.sum(sa.case().when(Transaction.purse_to_id == Purse.id,
-    #         then=Transaction.purse_to_amount).else_(0)).label("deposited"),
-    # ).outerjoin(
-    #     Transaction,
-    # ).group_by(Purse.id).all()
-
-    logging.info("making purses query: start")
     purses_query = db.session.query(
         Purse,
     ).filter(
@@ -127,7 +116,7 @@ class PurseBlueprint(Blueprint):
     """
     This class is a subclass of the Flask Blueprint class. It is used to define the routes for the
     purses blueprint. The blueprint provides endpoints for creating a new purse, retrieving a list
-    of all purse, retrieving a single purse, and deleting a purse. The blueprint also provides a
+    of all purses, retrieving a single purse, and deleting a purse. The blueprint also provides a
     search endpoint for searching for purses.
 
     Attributes:
@@ -214,7 +203,7 @@ class PurseBlueprint(Blueprint):
 
         if _id == 0:
             context["purse"] = {}
-            purse = Purse(currency=Currency.USD)
+            purse = Purse()
         else:
             purse = Purse.query.get(_id)
 

@@ -138,7 +138,7 @@ class TestTransactionsAPI:
         )
         assert response.json["purse_to_currency"] == Currency(purses[1].currency).value
         assert response.json["purse_from_amount"] == 100
-        assert response.json["purse_to_amount"] == 95  # 100 * 0.95
+        assert response.json["purse_to_amount"] == 95
 
         assert purses[0].balance == 800
         assert purses[1].balance == 1190

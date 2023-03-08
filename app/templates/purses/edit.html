@@ -6,7 +6,7 @@
 <div class="form-floating mb-3">
   <select {% if purse.date_created %} disabled {% endif %} class="form-select {% if form.user_id.errors %} is-invalid {% endif %}" id="id-{{ form.user_id.name }}" name="{{ form.user_id.name }}">
     {% for u in users %}
-      <option value="{{ u.id }}" {% if form.user_id.data == u.id %} selected {% elif purse.date_created and purse.user_id == u.ud %} selected {% endif %}>{{ u.username }}:{{ u.id }}</option>
+      <option value="{{ u.id }}" {% if form.user_id.data == u.id %} selected {% elif purse.date_created and purse.user_id == u.id %} selected {% endif %}>{{ u.username }}:{{ u.id }}</option>
     {% endfor %}
   </select>
   <label for="{{ form.user_id.name }}">{{ form.user_id.errors|join(' ') or 'User ID' }}</label>

@@ -1,0 +1,44 @@
+{% extends 'base/base_model_list.html' %}
+{% from 'transactions/search_form.html' import search_form with context %}
+
+{% block title %} Transactions {% endblock %}
+{% block model_name %} Transactions {% endblock %}
+{% block search_url %} <form action="{{ url_for('transaction_bp.list') }}" method="GET"> {% endblock %}
+{% block new_instance_link %} {{ url_for('transaction_bp.edit', _id=0) }} {% endblock %}
+{% block search_form %} {{ search_form() }} {% endblock %}
+
+{% block model_instances %}
+
+  <!-- TABLE HEADER -->
+  <thead class="bg-200 text-900">
+    <tr>
+      <th class="p-3 align-middle white-space-nowrap">ID</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse from ID</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse to ID</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse from currency</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse to currency</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse from amount</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse to amount</th>
+      <th class="p-3 align-middle white-space-nowrap">Date created</th>
+    </tr>
+  </thead>
+  <!-- TABLE HEADER -->
+
+  <!-- TABLE CONTENT -->
+  <tbody class="list" id="table-orders-body">
+    {% for transaction in pagination.items %}
+      <tr class="btn-reveal-trigger">
+        <td class="p-3 align-middle"><a href="{{ url_for('transaction_bp.edit', _id=transaction.id) }}"> {{ transaction.id }}</td>
+        <td class="p-3 align-middle"><a href="{{ url_for('purse_bp.edit', _id=transaction.purse_from_id) }}"> {{ transaction.purse_from_id }}</td>
+        <td class="p-3 align-middle"><a href="{{ url_for('purse_bp.edit', _id=transaction.purse_to_id) }}"> {{ transaction.purse_to_id }}</td>
+        <td class="p-3 align-middle">{{ Currency(transaction.purse_from_currency).value }}</td>
+        <td class="p-3 align-middle">{{ Currency(transaction.purse_to_currency).value }}</td>
+        <td class="p-3 align-middle">{{ transaction.purse_from_amount }}</td>
+        <td class="p-3 align-middle">{{ transaction.purse_to_amount }}</td>
+        <td class="p-3 align-middle">{{ transaction.date_created_str() }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <!-- TABLE CONTENT -->
+
+{% endblock %}

@@ -191,11 +191,8 @@ class TransactionsListAPI(Resource):
 
         args = parser.parse_args()
         _validate_args(args)
-        transaction = Transaction(
-            purse_from_id=args["purse_from_id"],
-            purse_to_id=args["purse_to_id"],
-            purse_from_amount=args["purse_from_amount"],
-        )
+        transaction = Transaction()
+        transaction.update(**args)
         db.session.add(transaction)
         db.session.commit()
         logging.info(

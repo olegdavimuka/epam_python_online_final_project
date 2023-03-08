@@ -1,5 +1,5 @@
 {%- macro search_form() -%}
-{% set filter_show = form.date_created.data or form.date_modified.data %}
+{% set filter_show = form.user_id.data or form.currency.data or form.date_created.data or form.date_modified.data %}
 <div class="collapse {% if filter_show %} show {% endif %}" id="filter">
     <form class="form-inline mr-auto"  method="GET" id="search-form">
         <div class="row p-2">

@@ -72,17 +72,28 @@ def create_app(config_class=Config):  # pylint: disable=too-many-locals
 
     api.init_app(app)
 
+    from app.views.home import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        HomeView,
+    )
     from app.views.purses import (  # pylint: disable=import-outside-toplevel, cyclic-import
         PurseBlueprint,
+    )
+    from app.views.transactions import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        TransactionBlueprint,
     )
     from app.views.users import (  # pylint: disable=import-outside-toplevel, cyclic-import
         UserBlueprint,
     )
 
+    app.add_url_rule("/", view_func=HomeView.as_view("home"))
     user_bp = UserBlueprint("user_bp", __name__, url_prefix="/users")
     purse_bp = PurseBlueprint("purse_bp", __name__, url_prefix="/purses")
+    transaction_bp = TransactionBlueprint(
+        "transaction_bp", __name__, url_prefix="/transactions"
+    )
     app.register_blueprint(user_bp)
     app.register_blueprint(purse_bp)
+    app.register_blueprint(transaction_bp)
 
     setup_logging()
 

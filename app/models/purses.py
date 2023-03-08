@@ -129,19 +129,12 @@ class Purse(db.Model):
 
     def update(self, **kwargs):
         """
-        Updates the Purse object with the given keyword arguments. The date_created and date_modified
-        attributes are removed from the dictionary.
+        Updates the Purse object with the given keyword arguments.
 
         Parameters:
             - **kwargs: Keyword arguments to update the Purse object with.
 
         """
-
-        if "date_created" in kwargs:
-            kwargs.pop("date_created")
-
-        if "date_modified" in kwargs:
-            kwargs.pop("date_modified")
 
         for key, value in kwargs.items():
             setattr(self, key, value)

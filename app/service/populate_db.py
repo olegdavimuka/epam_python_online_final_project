@@ -42,7 +42,7 @@ def _create_fake_users(_db):
 
     users = []
     phone = "+380000000000"
-    for _ in range(9):
+    for _ in range(25):
         phone = phone[:-1] + str(int(phone[-1]) + 1)
         user = User(
             username=fake.user_name(),

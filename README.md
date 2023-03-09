@@ -1,10 +1,14 @@
 # Flask Boilerplate
+
 [![Build Status](https://app.travis-ci.com/olegdavimuka/flask_boilerplate.svg?token=dr6uXgRpCEyJcSveCLS7&branch=main)](https://app.travis-ci.com/olegdavimuka/flask_boilerplate)
 [![Coverage Status](https://coveralls.io/repos/github/olegdavimuka/flask_boilerplate/badge.svg?branch=main)](https://coveralls.io/github/olegdavimuka/flask_boilerplate?branch=main)
 
 
-This Flask app is a simple web service that allows to manage users, purses, transactions, currencies, and rates.
-The app provides a user interface for managing these entities and also provides an API for accessing them programmatically.
+This Flask app uses MySQL as the relational database management system for storing and managing data. SQLAlchemy is used as the high-level interface for working with the MySQL database. Alembic is used as the database migration tool for SQLAlchemy, allowing developers to manage database schema changes. Jinja2 is used as the template engine for generating dynamic web pages based on data from the database.
+
+To use this Flask app, users should follow the installation and setup instructions provided in this readme file. Once the app is running, users can access the user interface pages for managing entities such as users, purses, transactions, currencies, and rates. The API endpoints are also available for accessing these entities programmatically.
+
+MySQL provides a secure and reliable way to store and manage data, while SQLAlchemy and Alembic make it easier to work with the MySQL database. Jinja2 provides a powerful template engine for generating dynamic web pages based on data from the database. Overall, these technologies make it easier for developers to build and maintain complex web applications with Flask.
 
 ## Installation and Setup
 
@@ -144,3 +148,19 @@ pylint app
 ```
 
 These commands will format the code, sort the imports, check the code for syntax errors and potential bugs, and analyze the code for code smells and potential bugs, respectively.
+
+## Continuous Integration with Travis CI
+
+This Flask app uses Travis CI for continuous integration. Travis CI is a popular continuous integration service that automatically runs tests and deploys code changes when they are pushed to the repository.
+
+Instructions for Travis CI are provided in the .travis.yml file.
+
+After creating this file and pushing it to your repository, Travis CI will automatically start testing your app whenever changes are pushed to the repository. Code quality and test coverage reports will also be generated automatically.
+
+## Test Coverage with Coveralls
+
+This Flask app uses Coveralls to track test coverage. Coveralls is a service that integrates with Travis CI (and other continuous integration services) to provide detailed test coverage reports.
+
+Instructions for Coveralls are provided in the .coveralls.yml file.
+
+After making changes and pushing them to your repository, Travis CI will automatically measure test coverage and send the results to Coveralls. You can view the test coverage report on the Coveralls website.

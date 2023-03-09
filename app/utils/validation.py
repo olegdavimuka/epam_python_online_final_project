@@ -124,7 +124,13 @@ def is_valid_date(date) -> bool:
 
     # Regular expression for matching date in format "yyyy-mm-dd"
     regex = r"^\d{4}-\d{2}-\d{2}$"
-    return re.match(regex, date) is not None
+    if re.match(regex, date) is None:
+        return False
+    if int(date.split("-")[1]) > 12:
+        return False
+    if int(date.split("-")[2]) > 31:
+        return False
+    return True
 
 
 def fake_phone_number() -> str:

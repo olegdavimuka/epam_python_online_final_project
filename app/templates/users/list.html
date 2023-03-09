@@ -44,8 +44,10 @@
         <td class="p-3 align-middle">
           {% if len(user.purses) != 0 %}
             {% for purse in user.purses %}
-              <a href="{{ url_for('purse_bp.edit', _id=purse.id) }}">{{ purse.id }}</a>
-              {% if not loop.last %}|{% endif %}
+              {% if purse.is_active %}
+                <a href="{{ url_for('purse_bp.edit', _id=purse.id) }}">{{ purse.id }}</a>
+                {% if not loop.last %}|{% endif %}
+              {% endif %}
             {% endfor %}
           {% else %}
             -

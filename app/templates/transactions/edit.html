@@ -6,7 +6,9 @@
 <div class="form-floating mb-3">
   <select {% if transaction.date_created %} disabled {% endif %} class="form-select {% if form.purse_from_id.errors %} is-invalid {% endif %}" id="id-{{ form.purse_from_id.name }}" name="{{ form.purse_from_id.name }}">
     {% for p in purses %}
+      {% if p.is_active %}
       <option value="{{ p.id }}" {% if form.purse_from_id.data == p.id %} selected {% elif transaction.date_created and transaction.purse_from_id == p.id %} selected {% endif %}>{{ p.id }}: {{ Currency(p.currency).value }}</option>
+      {% endif %}
     {% endfor %}
   </select>
   <label for="{{ form.purse_from_id.name }}">{{ form.purse_from_id.errors|join(' ') or 'Purse from ID' }}</label>
@@ -15,7 +17,9 @@
 <div class="form-floating mb-3">
   <select {% if transaction.date_created %} disabled {% endif %} class="form-select {% if form.purse_to_id.errors %} is-invalid {% endif %}" id="id-{{ form.purse_to_id.name }}" name="{{ form.purse_to_id.name }}">
     {% for p in purses %}
+      {% if p.is_active %}
       <option value="{{ p.id }}" {% if form.purse_to_id.data == p.id %} selected {% elif transaction.date_created and transaction.purse_to_id == p.id %} selected {% endif %}>{{ p.id }}: {{ Currency(p.currency).value }}</option>
+      {% endif %}
     {% endfor %}
   </select>
   <label for="{{ form.purse_to_id.name }}">{{ form.purse_to_id.errors|join(' ') or 'Purse to ID' }}</label>

@@ -209,7 +209,7 @@ class PurseBlueprint(Blueprint):
 
         if not purse:
             logging.error("Purse %s does not exist.", _id)
-            abort(404, message=f"Purse with id {_id} does not exist.")
+            abort(404, f"Purse with id {_id} does not exist.")
 
         form = PurseForm()
         if request.method == "POST":
@@ -253,7 +253,7 @@ class PurseBlueprint(Blueprint):
         try:
             purse.is_active = False
             db.session.commit()
-        except IntegrityError:
+        except IntegrityError:  # pragma: no cover
             db.session.rollback()
             return {"message": "Purse cannot be deleted"}, 400
 

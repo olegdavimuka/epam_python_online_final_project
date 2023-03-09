@@ -206,8 +206,8 @@
           locale: {
               format: 'YYYY-MM-DD H:mm'
           },
-          startDate: startDate || Date.now(),
-          endDate: endDate || Date.now(),
+          startDate: startDate || Date.utcnow(),
+          endDate: endDate || Date.utcnow(),
           timePicker: true,
           timePicker24Hour: true,
           showDropdowns: true,

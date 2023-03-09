@@ -49,8 +49,8 @@ class TestPurseModel:
         assert purse.user_id == 1
         assert purse.currency == Currency.USD
         assert purse.balance == 900.0
-        assert purse.date_created.date() == datetime.now().date()
-        assert purse.date_modified.date() == datetime.now().date()
+        assert purse.date_created.date() == datetime.utcnow().date()
+        assert purse.date_modified.date() == datetime.utcnow().date()
         assert purse.is_active is True
 
     def test_purse_representation(self, purse):
@@ -79,10 +79,10 @@ class TestPurseModel:
 
         """
 
-        assert purse.date_created_str().split(" ")[0] == datetime.now().strftime(
+        assert purse.date_created_str().split(" ")[0] == datetime.utcnow().strftime(
             "%Y-%m-%d"
         )
-        assert purse.date_modified_str().split(" ")[0] == datetime.now().strftime(
+        assert purse.date_modified_str().split(" ")[0] == datetime.utcnow().strftime(
             "%Y-%m-%d"
         )
 
@@ -99,10 +99,10 @@ class TestPurseModel:
         assert purse_dict["user_id"] == 1
         assert purse_dict["currency"] == "USD"
         assert purse_dict["balance"] == 900.0
-        assert purse.date_created_str().split(" ")[0] == datetime.now().strftime(
+        assert purse.date_created_str().split(" ")[0] == datetime.utcnow().strftime(
             "%Y-%m-%d"
         )
-        assert purse.date_modified_str().split(" ")[0] == datetime.now().strftime(
+        assert purse.date_modified_str().split(" ")[0] == datetime.utcnow().strftime(
             "%Y-%m-%d"
         )
 

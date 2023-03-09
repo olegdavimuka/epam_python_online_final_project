@@ -19,7 +19,6 @@ from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_client,
     fixture_purse,
     fixture_purses,
-    fixture_runner,
     fixture_transaction,
     fixture_user,
 )
@@ -36,7 +35,10 @@ class TestTransactionsAPI:
         - test_get_transaction(client, transactions): tests the retrieval of a transaction.
         - test_get_nonexistent_transaction(client): tests the retrieval of a
         nonexistent transaction.
-        - test_post_transaction(client): tests the creation of a transaction
+        - test_post_transaction_without_currency_conversion(client): tests the creation of a
+        transaction without currency conversion.
+        - test_post_transaction_with_currency_conversion(client): tests the creation of a
+        transaction with currency conversion.
         - test_post_transaction_invalid_purse_from(client): tests the creation of a
         transaction with an invalid purse_from.
         - test_post_transaction_invalid_purse_to(client): tests the creation of a
@@ -58,7 +60,7 @@ class TestTransactionsAPI:
 
         """
 
-        response = client.get("/api/transactions")
+        response = client.get("/api/transactions/")
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]["id"] == transaction.id
@@ -113,9 +115,42 @@ class TestTransactionsAPI:
         response = client.get("/api/transactions/0")
         assert response.status_code == 404
 
-    def test_post_transaction(self, client, purses):
+    def test_post_transaction_without_currency_conversion(self, client, purses):
         """
-        Test creating a new transaction.
+        Test creating a new transaction without currency conversion.
+
+        Args:
+            - client: The test client.
+            - purses: The list of purses.
+
+        """
+
+        data = {
+            "purse_from_id": purses[0].id,
+            "purse_to_id": purses[2].id,
+            "purse_from_amount": 100,
+        }
+
+        response = client.post("/api/transactions/", data=data)
+        assert response.status_code == 201
+        assert response.json["purse_from_id"] == purses[0].id
+        assert response.json["purse_to_id"] == purses[2].id
+        assert (
+            response.json["purse_from_currency"] == Currency(purses[0].currency).value
+        )
+        assert response.json["purse_to_currency"] == Currency(purses[2].currency).value
+        assert (
+            response.json["purse_from_currency"] == response.json["purse_to_currency"]
+        )
+        assert response.json["purse_from_amount"] == 100
+        assert response.json["purse_to_amount"] == 100
+
+        assert purses[0].balance == 800  # purse1.balance = 900 - 100 = 800
+        assert purses[2].balance == 1100  # purse3.balance = 1100 + 100 = 1100
+
+    def test_post_transaction_with_currency_conversion(self, client, purses):
+        """
+        Test creating a new transaction with currency conversion.
 
         Args:
             - client: The test client.
@@ -129,7 +164,7 @@ class TestTransactionsAPI:
             "purse_from_amount": 100,
         }
 
-        response = client.post("/api/transactions", data=data)
+        response = client.post("/api/transactions/", data=data)
         assert response.status_code == 201
         assert response.json["purse_from_id"] == purses[0].id
         assert response.json["purse_to_id"] == purses[1].id
@@ -159,7 +194,7 @@ class TestTransactionsAPI:
             "purse_from_amount": 100,
         }
 
-        response = client.post("/api/transactions", data=data)
+        response = client.post("/api/transactions/", data=data)
         assert response.status_code == 400
 
     def test_post_transaction_invalid_purse_to(self, client, purse):
@@ -178,7 +213,7 @@ class TestTransactionsAPI:
             "purse_from_amount": 100,
         }
 
-        response = client.post("/api/transactions", data=data)
+        response = client.post("/api/transactions/", data=data)
         assert response.status_code == 400
 
     def test_post_transaction_not_enough_funds(self, client, purses):
@@ -197,7 +232,7 @@ class TestTransactionsAPI:
             "purse_from_amount": 10000,
         }
 
-        response = client.post("/api/transactions", data=data)
+        response = client.post("/api/transactions/", data=data)
         assert response.status_code == 400
 
     def test_post_transaction_same_purse(self, client, purse):
@@ -216,5 +251,5 @@ class TestTransactionsAPI:
             "purse_from_amount": 100,
         }
 
-        response = client.post("/api/transactions", data=data)
+        response = client.post("/api/transactions/", data=data)
         assert response.status_code == 400

@@ -24,7 +24,7 @@ class TestPurseForm:
 
     """
 
-    def test_search_form(self, app):
+    def test_search_form(self, app):  # pylint: disable=unused-argument
         """
         Test the SearchForm class.
 
@@ -33,34 +33,33 @@ class TestPurseForm:
 
         """
 
-        with app.test_request_context():
-            form = SearchForm()
+        form = SearchForm()
 
-            assert hasattr(form, "search")
-            assert hasattr(form, "date_created")
-            assert hasattr(form, "date_modified")
-            assert hasattr(form, "user_id")
-            assert hasattr(form, "currency")
+        assert hasattr(form, "search")
+        assert hasattr(form, "date_created")
+        assert hasattr(form, "date_modified")
+        assert hasattr(form, "user_id")
+        assert hasattr(form, "currency")
 
-            assert form.validate() is True
+        assert form.validate() is True
 
-            form = SearchForm(
-                search="test",
-                date_created="2022-01-01",
-                date_modified="2022-01-02",
-                user_id="1",
-                currency="USD",
-            )
+        form = SearchForm(
+            search="test",
+            date_created="2022-01-01",
+            date_modified="2022-01-02",
+            user_id="1",
+            currency="USD",
+        )
 
-            assert form.search.data == "test"
-            assert form.date_created.data == "2022-01-01"
-            assert form.date_modified.data == "2022-01-02"
-            assert form.user_id.data == "1"
-            assert form.currency.data == "USD"
+        assert form.search.data == "test"
+        assert form.date_created.data == "2022-01-01"
+        assert form.date_modified.data == "2022-01-02"
+        assert form.user_id.data == "1"
+        assert form.currency.data == "USD"
 
-            assert form.validate() is True
+        assert form.validate() is True
 
-    def test_purse_form(self, app):
+    def test_purse_form(self, app):  # pylint: disable=unused-argument
         """
         Test the PurseForm class.
 
@@ -69,23 +68,23 @@ class TestPurseForm:
 
         """
 
-        with app.test_request_context():
-            form = PurseForm()
+        form = PurseForm()
 
-            assert hasattr(form, "user_id")
-            assert hasattr(form, "currency")
-            assert hasattr(form, "balance")
-            assert hasattr(form, "date_created")
-            assert hasattr(form, "date_modified")
+        assert hasattr(form, "user_id")
+        assert hasattr(form, "currency")
+        assert hasattr(form, "balance")
+        assert hasattr(form, "date_created")
+        assert hasattr(form, "date_modified")
 
-            assert form.validate() is True
+        assert form.validate() is False
 
-            form = PurseForm(
-                user_id="1",
-                currency="USD",
-                balance="100.00",
-            )
+        form = PurseForm(
+            user_id="1",
+            currency="USD",
+            balance="100.00",
+        )
 
-            assert form.currency.data == "USD"
-            assert form.balance.data == "100.00"
-            assert form.user_id.data == "1"
+        assert form.validate() is True
+        assert form.currency.data == "USD"
+        assert form.balance.data == "100.00"
+        assert form.user_id.data == "1"

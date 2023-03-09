@@ -63,11 +63,11 @@ def create_app(config_class=Config):  # pylint: disable=too-many-locals
     )
 
     api = Api(prefix="/api")
-    api.add_resource(UsersListAPI, "/users")
+    api.add_resource(UsersListAPI, "/users/")
     api.add_resource(UsersAPI, "/users/<int:_id>")
-    api.add_resource(PursesListAPI, "/purses")
+    api.add_resource(PursesListAPI, "/purses/")
     api.add_resource(PursesAPI, "/purses/<int:_id>")
-    api.add_resource(TransactionsListAPI, "/transactions")
+    api.add_resource(TransactionsListAPI, "/transactions/")
     api.add_resource(TransactionsAPI, "/transactions/<int:_id>")
 
     api.init_app(app)

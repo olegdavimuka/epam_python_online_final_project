@@ -16,7 +16,7 @@ Exported classes:
 
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms.validators import Optional
+from wtforms.validators import DataRequired, Optional
 
 from app.forms.base import BaseSearchForm
 
@@ -57,8 +57,8 @@ class PurseForm(FlaskForm):
 
     """
 
-    user_id = StringField("User ID", validators=[Optional()])
-    currency = StringField("Currency", validators=[Optional()])
+    user_id = StringField("User ID", validators=[DataRequired()])
+    currency = StringField("Currency", validators=[DataRequired()])
     balance = StringField("Balance", validators=[Optional()])
     date_created = StringField("Date Created", validators=[Optional()])
     date_modified = StringField("Date Modified", validators=[Optional()])

@@ -25,6 +25,7 @@ class TestUserModel:
 
     Methods:
         - test_user_creation(): tests the creation of a user.
+        - test_user_representation(): tests the __repr__() method.
         - test_birth_date_str(): tests the birth_date_str() method.
         - test_date_created_str(): tests the date_created_str() method.
         - test_date_modified_str(): tests the date_modified_str() method.
@@ -48,6 +49,23 @@ class TestUserModel:
         assert user.first_name is not None
         assert user.last_name is not None
         assert user.birth_date is not None
+
+    def test_user_representation(self, user):
+        """
+        Test the __repr__() method.
+
+        Args:
+            - user: A User object.
+
+        """
+
+        assert (
+            repr(user)
+            == f"User id: 1, \
+            name: {user.username}, \
+            email: {user.email}, \
+            phone: {user.phone}"
+        )
 
     def test_birth_date_str(self, user):
         """

@@ -99,11 +99,6 @@ def make_query():
             Transaction.purse_to_currency == purse_to_currency
         )
 
-    if request.args.get("currency"):
-        currency = request.args.get("currency")
-        logging.info("making transactions query: filter by currency")
-        transactions_query = transactions_query.filter(Purse.currency == currency)
-
     if (
         request.args.get("date_created") is not None
         and request.args.get("date_created") != ""
@@ -114,19 +109,6 @@ def make_query():
             sa.and_(
                 Purse.date_created >= date_created[0] + " 00:00:00",
                 Purse.date_created <= date_created[-1] + " 23:59:59",
-            )
-        )
-
-    if (
-        request.args.get("date_modified") is not None
-        and request.args.get("date_modified") != ""
-    ):
-        date_modified = request.args.get("date_modified").split(" - ")
-        logging.info("making transactions query: filter by date modified")
-        transactions_query = transactions_query.filter(
-            sa.and_(
-                Purse.date_modified >= date_modified[0] + " 00:00:00",
-                Purse.date_modified <= date_modified[-1] + " 23:59:59",
             )
         )
 
@@ -229,7 +211,7 @@ class TransactionBlueprint(Blueprint):
 
         if not transaction:
             logging.error("Transaction %s does not exist.", _id)
-            abort(404, message=f"Transaction with id {_id} does not exist.")
+            abort(404, f"Transaction with id {_id} does not exist.")
 
         form = TransactionForm()
         if request.method == "POST":

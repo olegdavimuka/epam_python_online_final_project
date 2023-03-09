@@ -53,7 +53,7 @@ class TestTransactionModel:
         assert transaction.purse_to_currency == Currency.EUR
         assert transaction.purse_from_amount == 100.0
         assert transaction.purse_to_amount == 95
-        assert transaction.date_created.date() == datetime.now().date()
+        assert transaction.date_created.date() == datetime.utcnow().date()
 
     def test_transaction_representation(self, transaction):
         """
@@ -84,9 +84,9 @@ class TestTransactionModel:
 
         """
 
-        assert transaction.date_created_str().split(" ")[0] == datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        assert transaction.date_created_str().split(" ")[
+            0
+        ] == datetime.utcnow().strftime("%Y-%m-%d")
 
     def test_transaction_dict_conversion(self, transaction):
         """
@@ -106,4 +106,4 @@ class TestTransactionModel:
         assert transaction_dict["purse_to_amount"] == 95
         assert transaction_dict["date_created"].split(" ")[
             0
-        ] == datetime.now().strftime("%Y-%m-%d")
+        ] == datetime.utcnow().strftime("%Y-%m-%d")

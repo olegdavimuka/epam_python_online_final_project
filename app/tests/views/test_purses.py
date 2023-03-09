@@ -31,6 +31,8 @@ class TestPursesView:
     Methods:
         - test_list_purses(client, purse): tests the retrieval of all purses.
         - test_get_purse(client, purse): tests the retrieval of a purse with a given ID.
+        - test_get_nonexistent_purse(client, purse): tests the retrieval of a purse that does not
+        exist.
         - test_create_purse(client, user): tests the creation of a purse.
         - test_delete_purse(client, purse): tests the deletion of a purse with a given ID.
 
@@ -46,6 +48,40 @@ class TestPursesView:
 
         """
 
+        response = client.get(f"/purses/?search={purse.currency}")
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
+        response = client.get(f"/purses/?search={purse.user_id}")
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
+        response = client.get(f"/purses/?currency={purse.currency}")
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
+        response = client.get(f"/purses/?user_id={purse.user_id}")
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
+        response = client.get(
+            f"/purses/?date_created={purse.date_created}-{purse.date_created}"
+        )
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
+        response = client.get(
+            f"/purses/?date_modified={purse.date_modified}-{purse.date_modified}"
+        )
+        assert response.status_code == 200
+        assert b"Purses" in response.data
+        assert str(purse.id) in response.data.decode("utf-8")
+
         response = client.get("/purses/")
         assert response.status_code == 200
         assert b"Purses" in response.data
@@ -53,10 +89,10 @@ class TestPursesView:
         assert str(purse.user_id) in response.data.decode("utf-8")
         assert purse.currency.value in response.data.decode("utf-8")
         assert str(purse.balance) in response.data.decode("utf-8")
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
-        assert Purse.query.count() == 2
+        assert Purse.query.count() == 3
 
     def test_get_purse(self, client, purse):
         """
@@ -74,9 +110,22 @@ class TestPursesView:
         assert str(purse.user_id) in response.data.decode("utf-8")
         assert purse.currency.value in response.data.decode("utf-8")
         assert str(purse.balance) in response.data.decode("utf-8")
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
+
+    def test_get_nonexistent_purse(self, client):
+        """
+        Test retrieving a purse that does not exist.
+
+        Args:
+            - client: The test client.
+            - purse: The purse instance.
+
+        """
+
+        response = client.get("/purses/9999", data={})
+        assert response.status_code == 404
 
     def test_create_purse(self, client, user):
         """
@@ -90,6 +139,13 @@ class TestPursesView:
 
         data = {
             "user_id": user.id,
+        }
+
+        response = client.post("purses/0", data=data)
+        assert "This field is required." in response.data.decode("utf-8")
+
+        data = {
+            "user_id": user.id,
             "currency": Currency.USD.value,
         }
 
@@ -98,10 +154,10 @@ class TestPursesView:
         assert str(user.id) in response.data.decode("utf-8")
         assert Currency.USD.value in response.data.decode("utf-8")
         assert "0.0" in response.data.decode("utf-8")
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
-        assert Purse.query.count() == 3
+        assert Purse.query.count() == 4
 
     def test_delete_purse(self, client, purse):
         """

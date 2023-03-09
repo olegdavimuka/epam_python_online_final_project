@@ -35,6 +35,8 @@ class TestUsersView:
     Methods:
         - test_list_users(client, user): tests the retrieval of all users.
         - test_get_user(client, user): tests the retrieval of a user with a given ID.
+        - test_get_nonexistent_user(client, user): tests the retrieval of a user that does not'
+        exist.
         - test_create_user(client): tests the creation of a new user.
         - test_edit_user(client, user): tests the editing of a user with a given ID.
         - test_delete_user(client, user): tests the deletion of a user with a given ID.
@@ -51,6 +53,30 @@ class TestUsersView:
 
         """
 
+        response = client.get(f"/users/?search={user.username}")
+        assert response.status_code == 200
+        assert b"Users" in response.data
+        assert str(user.id) in response.data.decode("utf-8")
+
+        response = client.get(f"/users/?birth_date={user.birth_date}-{user.birth_date}")
+        assert response.status_code == 200
+        assert b"Users" in response.data
+        assert str(user.id) in response.data.decode("utf-8")
+
+        response = client.get(
+            f"/users/?date_created={user.date_created}-{user.date_created}"
+        )
+        assert response.status_code == 200
+        assert b"Users" in response.data
+        assert str(user.id) in response.data.decode("utf-8")
+
+        response = client.get(
+            f"/users/?date_modified={user.date_modified}-{user.date_modified}"
+        )
+        assert response.status_code == 200
+        assert b"Users" in response.data
+        assert str(user.id) in response.data.decode("utf-8")
+
         response = client.get("/users/")
         assert response.status_code == 200
         assert b"Users" in response.data
@@ -61,7 +87,7 @@ class TestUsersView:
         assert user.first_name in response.data.decode("utf-8")
         assert user.last_name in response.data.decode("utf-8")
         assert user.birth_date.strftime("%Y-%m-%d") in response.data.decode("utf-8")
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
         assert User.query.count() == 1
@@ -87,9 +113,22 @@ class TestUsersView:
         assert datetime.strftime(user.birth_date, "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
+
+    def test_get_nonexistent_user(self, client):
+        """
+        Test retrieving a user that does not exist.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
+        """
+
+        response = client.get("/users/9999", data={})
+        assert response.status_code == 404
 
     def test_create_user(self, client):
         """
@@ -99,6 +138,17 @@ class TestUsersView:
             - client: The test client.
 
         """
+
+        data = {
+            "email": fake.email(),
+            "phone": fake_phone_number(),
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+
+        response = client.post("users/0", data=data)
+        assert "This field is required." in response.data.decode("utf-8")
 
         data = {
             "username": fake.user_name(),
@@ -118,7 +168,7 @@ class TestUsersView:
         assert datetime.strftime(
             data["birth_date"], "%Y-%m-%d"
         ) in response.data.decode("utf-8")
-        assert datetime.strftime(datetime.now(), "%Y-%m-%d") in response.data.decode(
+        assert datetime.strftime(datetime.utcnow(), "%Y-%m-%d") in response.data.decode(
             "utf-8"
         )
         assert User.query.filter_by(username=data["username"]).first() is not None

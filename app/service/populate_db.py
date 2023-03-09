@@ -51,8 +51,8 @@ def _create_fake_users(_db):
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             birth_date=fake.date_of_birth(),
-            date_created=datetime.now(),
-            date_modified=datetime.now(),
+            date_created=datetime.utcnow(),
+            date_modified=datetime.utcnow(),
         )
         users.append(user)
     _db.session.add_all(users)
@@ -76,8 +76,8 @@ def _create_fake_purses(_db):
                 user_id=user.id,
                 currency=currency.value,
                 balance=randint(0, 1000),
-                date_created=datetime.now(),
-                date_modified=datetime.now(),
+                date_created=datetime.utcnow(),
+                date_modified=datetime.utcnow(),
             )
             purses.append(purse)
     _db.session.add_all(purses)
@@ -112,7 +112,7 @@ def _create_fake_transactions(_db):
             purse_to_currency=purse_to.currency,
             purse_from_amount=amount,
             purse_to_amount=amount,
-            date_created=datetime.now(),
+            date_created=datetime.utcnow(),
         )
         transactions.append(transaction)
     _db.session.add_all(transactions)

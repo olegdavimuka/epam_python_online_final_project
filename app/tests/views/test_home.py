@@ -51,10 +51,10 @@ class TestHomeView:
     def test_currency_conversion(self, client):
         """
         Test the currency conversion.
-        
+
         Args:
             - client: A Flask test client.
-            
+
         """
         response = client.get("/")
         assert str(Rates.get_rate(Currency.USD, Currency.USD)) in response.data.decode(

@@ -2,14 +2,14 @@
 This module contains the tests for the Flask app.
 
 Dependencies:
-    - app
+    - app.webapp
 
 Classes:
     - TestApp: A class that contains the tests for the Flask app.
 
 """
 
-import app
+from app.webapp import app
 
 
 class TestWebapp:
@@ -28,7 +28,7 @@ class TestWebapp:
 
         """
 
-        assert app.create_app() is not None
+        assert app is not None
 
     def test_app_run(self):
         """
@@ -36,7 +36,6 @@ class TestWebapp:
 
         """
 
-        test_app = app.create_app()
-        with test_app.test_client() as client:
+        with app.test_client() as client:
             response = client.get("/")
             assert response.status_code == 200

@@ -117,8 +117,8 @@
           locale: {
               format: 'YYYY-MM-DD'
           },
-          startDate: startDate || Date.now(),
-          endDate: endDate || Date.now(),
+          startDate: startDate || Date.utcnow(),
+          endDate: endDate || Date.utcnow(),
           timePicker: false,
           showDropdowns: true,
           minYear: minYear,

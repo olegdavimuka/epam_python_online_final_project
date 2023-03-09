@@ -20,9 +20,6 @@ from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_client,
     fixture_purse,
-    fixture_purses,
-    fixture_runner,
-    fixture_transaction,
     fixture_user,
 )
 
@@ -57,9 +54,9 @@ class TestPursesAPI:
 
         """
 
-        response = client.get("/api/purses")
+        response = client.get("/api/purses/")
         assert response.status_code == 200
-        assert len(response.json) == 2
+        assert len(response.json) == 3
         assert response.json[0]["id"] == purse.id
         assert response.json[0]["user_id"] == purse.user_id
         assert response.json[0]["currency"] == Currency(purse.currency).value
@@ -136,7 +133,7 @@ class TestPursesAPI:
             "currency": Currency.USD.value,
         }
 
-        response = client.post("/api/purses", data=data)
+        response = client.post("/api/purses/", data=data)
         assert response.status_code == 201
         assert response.json["user_id"] == user.id
         assert response.json["currency"] == Currency.USD.value
@@ -156,7 +153,7 @@ class TestPursesAPI:
             "currency": Currency.USD,
         }
 
-        response = client.post("/api/purses", data=data)
+        response = client.post("/api/purses/", data=data)
         assert response.status_code == 400
 
     def test_post_purse_with_invalid_currency(self, client, user):
@@ -174,5 +171,5 @@ class TestPursesAPI:
             "currency": "invalid",
         }
 
-        response = client.post("/api/purses", data=data)
+        response = client.post("/api/purses/", data=data)
         assert response.status_code == 400

@@ -22,7 +22,7 @@ requires = [
     "typing_extensions==4.5.0",
     "Werkzeug==2.2.3",
     "WTForms==3.0.1",
-    "astroid==2.14.2"
+    "astroid==2.14.2",
 ]
 
 setup(

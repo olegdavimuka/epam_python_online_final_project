@@ -51,7 +51,7 @@ def _get_user_or_abort_if_doesnt_exist(_id):
     """
 
     user = db.session.get(User, _id)
-    if not user:
+    if not user or not user.is_active:
         logging.error("user %s doesn't exist.", _id)
         abort(404, message=f"user {_id} doesn't exist.")
     return user

@@ -5,7 +5,7 @@ Dependencies:
     - faker
     - app.constants.currency
     - app.models.purses
-    - app.tests.api.fixtures
+    - app.tests.fixtures
 
 Classes:
     - TestPursesAPI: A class that contains the tests for the purses API.
@@ -16,7 +16,7 @@ from faker import Faker
 
 from app.constants.currency import Currency
 from app.models.purses import Purse
-from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_client,
     fixture_purse,

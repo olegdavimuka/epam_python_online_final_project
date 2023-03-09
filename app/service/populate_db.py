@@ -9,6 +9,7 @@ Dependencies:
     - app.models.purses
     - app.models.transactions
     - app.models.users
+    - app.utils.validation
 
 Functions:
     - _create_fake_users(db): creates and saves fake users to the database.
@@ -27,6 +28,7 @@ from app.constants.currency import Currency
 from app.models.purses import Purse
 from app.models.transactions import Transaction
 from app.models.users import User
+from app.utils.validation import fake_phone_number
 
 fake = Faker()
 
@@ -41,13 +43,11 @@ def _create_fake_users(_db):
     """
 
     users = []
-    phone = "+380000000000"
     for _ in range(25):
-        phone = phone[:-1] + str(int(phone[-1]) + 1)
         user = User(
             username=fake.user_name(),
             email=fake.email(),
-            phone=phone,
+            phone=fake_phone_number(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             birth_date=fake.date_of_birth(),

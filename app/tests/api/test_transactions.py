@@ -14,7 +14,7 @@ Classes:
 from faker import Faker
 
 from app.constants.currency import Currency
-from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_client,
     fixture_purse,
@@ -138,10 +138,10 @@ class TestTransactionsAPI:
         )
         assert response.json["purse_to_currency"] == Currency(purses[1].currency).value
         assert response.json["purse_from_amount"] == 100
-        assert response.json["purse_to_amount"] == 95
+        assert response.json["purse_to_amount"] == 95  # Rate = 0.95
 
-        assert purses[0].balance == 800
-        assert purses[1].balance == 1190
+        assert purses[0].balance == 800  # purse1.balance = 900 - 100 = 800
+        assert purses[1].balance == 1190  # purse2.balance = 1095 + 95 = 1190
 
     def test_post_transaction_invalid_purse_from(self, client, purse):
         """

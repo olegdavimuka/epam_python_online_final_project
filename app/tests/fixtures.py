@@ -78,6 +78,9 @@ def fixture_app():
                 "purse_from_amount": 100,
             }
         )
+        # Rate = 0.95:
+        # purse1.balance = 1000 - 100 = 900
+        # purse2.balance = 1000 + 100 * 0,95 = 1095.
 
         db.session.add(transaction)
         db.session.commit()

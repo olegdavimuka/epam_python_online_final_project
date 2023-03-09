@@ -15,8 +15,13 @@ Classes:
 from datetime import datetime
 
 from app.constants.currency import Currency
-from app.tests.models.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
+    fixture_app,
+    fixture_client,
+    fixture_purse,
+    fixture_purses,
     fixture_transaction,
+    fixture_user,
 )
 
 
@@ -48,7 +53,7 @@ class TestTransactionModel:
         assert transaction.purse_to_currency == Currency.EUR
         assert transaction.purse_from_amount == 100.0
         assert transaction.purse_to_amount == 95
-        assert transaction.date_created == datetime(2022, 3, 8, 12, 0, 0)
+        assert transaction.date_created.date() == datetime.now().date()
 
     def test_transaction_representation(self, transaction):
         """
@@ -61,7 +66,7 @@ class TestTransactionModel:
 
         assert (
             repr(transaction)
-            == "Transaction id: None, \
+            == "Transaction id: 1, \
             purse_from_id: 1, \
             purse_to_id: 2, \
             purse_from_currency: Currency.USD, \
@@ -79,7 +84,9 @@ class TestTransactionModel:
 
         """
 
-        assert transaction.date_created_str() == "2022-03-08 12:00:00"
+        assert transaction.date_created_str().split(" ")[0] == datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
     def test_transaction_dict_conversion(self, transaction):
         """
@@ -97,4 +104,6 @@ class TestTransactionModel:
         assert transaction_dict["purse_to_currency"] == "EUR"
         assert transaction_dict["purse_from_amount"] == 100.0
         assert transaction_dict["purse_to_amount"] == 95
-        assert transaction_dict["date_created"] == "2022-03-08 12:00:00"
+        assert transaction_dict["date_created"].split(" ")[
+            0
+        ] == datetime.now().strftime("%Y-%m-%d")

@@ -5,7 +5,8 @@ Dependencies:
     - datetime
     - faker
     - app.models.users
-    - app.tests.api.fixtures
+    - app.tests.fixtures
+    - app.utils.validation
 
 Classes:
     - TestUsersAPI: A class that contains the tests for the users API.
@@ -17,7 +18,7 @@ from datetime import datetime
 from faker import Faker
 
 from app.models.users import User
-from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_client,
     fixture_purse,
@@ -26,6 +27,7 @@ from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_transaction,
     fixture_user,
 )
+from app.utils.validation import fake_phone_number
 
 fake = Faker()
 
@@ -145,7 +147,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -176,7 +178,7 @@ class TestUsersAPI:
         data = {
             "username": user.username,
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -198,7 +200,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": user.email,
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -260,7 +262,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": "invalid",
@@ -282,7 +284,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -312,7 +314,7 @@ class TestUsersAPI:
         data = {
             "username": user.username,
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -334,7 +336,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": user.email,
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -400,7 +402,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": "invalid",

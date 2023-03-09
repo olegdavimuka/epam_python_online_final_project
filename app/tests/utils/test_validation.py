@@ -4,7 +4,7 @@ This module contains the tests for the validation module.
 Dependencies:
     - re
     - faker
-    - app.tests.api.fixtures
+    - app.tests.fixtures
     - app.utils.validation
 
 Classes:
@@ -16,7 +16,7 @@ import re
 
 from faker import Faker
 
-from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_user,
 )

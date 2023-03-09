@@ -11,9 +11,7 @@ Classes:
 """
 
 from app.forms.transactions import SearchForm, TransactionForm
-from app.tests.forms.fixtures import (  # noqa: F401 pylint: disable=unused-import
-    fixture_app,
-)
+from app.tests.fixtures import fixture_app  # noqa: F401 pylint: disable=unused-import
 
 
 class TestTransactionForm:

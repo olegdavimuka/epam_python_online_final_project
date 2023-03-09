@@ -146,7 +146,9 @@ class UserBlueprint(Blueprint):
 
         super().__init__(*args, **kwargs)
         self.add_url_rule("/", view_func=self.list)
-        self.add_url_rule("/<int:_id>", view_func=self.edit, methods=["GET", "POST"])
+        self.add_url_rule(
+            "/<int:_id>", view_func=self.edit, methods=["GET", "POST", "PUT"]
+        )
         self.add_url_rule("/<int:_id>", view_func=self.delete, methods=["DELETE"])
 
     def _add_constants_to_context(self, context):

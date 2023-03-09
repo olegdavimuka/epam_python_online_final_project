@@ -15,8 +15,11 @@ Classes:
 from datetime import datetime
 
 from app.constants.currency import Currency
-from app.tests.models.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
+    fixture_app,
+    fixture_client,
     fixture_purse,
+    fixture_user,
 )
 
 
@@ -45,9 +48,9 @@ class TestPurseModel:
 
         assert purse.user_id == 1
         assert purse.currency == Currency.USD
-        assert purse.balance == 100.0
-        assert purse.date_created == datetime(2022, 3, 8, 12, 0, 0)
-        assert purse.date_modified == datetime(2022, 3, 8, 12, 0, 0)
+        assert purse.balance == 900.0
+        assert purse.date_created.date() == datetime.now().date()
+        assert purse.date_modified.date() == datetime.now().date()
         assert purse.is_active is True
 
     def test_purse_representation(self, purse):
@@ -61,10 +64,10 @@ class TestPurseModel:
 
         assert (
             repr(purse)
-            == "Purse id: None, \
+            == "Purse id: 1, \
             user_id: 1, \
             currency: Currency.USD, \
-            balance: 100.0"
+            balance: 900.0"
         )
 
     def test_purse_date_conversion(self, purse):
@@ -76,8 +79,12 @@ class TestPurseModel:
 
         """
 
-        assert purse.date_created_str() == "2022-03-08 12:00:00"
-        assert purse.date_modified_str() == "2022-03-08 12:00:00"
+        assert purse.date_created_str().split(" ")[0] == datetime.now().strftime(
+            "%Y-%m-%d"
+        )
+        assert purse.date_modified_str().split(" ")[0] == datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
     def test_purse_dict_conversion(self, purse):
         """
@@ -91,9 +98,13 @@ class TestPurseModel:
         purse_dict = purse.to_dict()
         assert purse_dict["user_id"] == 1
         assert purse_dict["currency"] == "USD"
-        assert purse_dict["balance"] == 100.0
-        assert purse_dict["date_created"] == "2022-03-08 12:00:00"
-        assert purse_dict["date_modified"] == "2022-03-08 12:00:00"
+        assert purse_dict["balance"] == 900.0
+        assert purse.date_created_str().split(" ")[0] == datetime.now().strftime(
+            "%Y-%m-%d"
+        )
+        assert purse.date_modified_str().split(" ")[0] == datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
     def test_purse_update(self, purse):
         """

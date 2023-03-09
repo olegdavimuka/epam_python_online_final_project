@@ -11,9 +11,7 @@ Classes:
 """
 
 from app.forms.users import SearchForm, UserForm
-from app.tests.forms.fixtures import (  # noqa: F401 pylint: disable=unused-import
-    fixture_app,
-)
+from app.tests.fixtures import fixture_app  # noqa: F401 pylint: disable=unused-import
 
 
 class TestUserForm:

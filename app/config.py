@@ -50,4 +50,5 @@ class TestingConfig(Config):
         os.environ.get("TEST_DATABASE_URL") or "sqlite:///" + "test.db"
     )
     TESTING = True
+    WTF_CSRF_ENABLED = False
     DEBUG = False

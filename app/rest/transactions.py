@@ -67,11 +67,17 @@ def _validate_args(args):
 
     """
 
-    if Purse.query.filter_by(id=args["purse_from_id"]).first() is None:
+    if (
+        Purse.query.filter_by(id=args["purse_from_id"]).first() is None
+        or not Purse.query.filter_by(id=args["purse_from_id"]).first().is_active
+    ):
         logging.error("Purse %s doesn't exist.", args["purse_from_id"])
         abort(400, message=f"Purse {args['purse_from_id']} doesn't exist.")
 
-    if Purse.query.filter_by(id=args["purse_to_id"]).first() is None:
+    if (
+        Purse.query.filter_by(id=args["purse_to_id"]).first() is None
+        or not Purse.query.filter_by(id=args["purse_to_id"]).first().is_active
+    ):
         logging.error("Purse %s doesn't exist.", args["purse_to_id"])
         abort(400, message=f"Purse {args['purse_to_id']} doesn't exist.")
 
@@ -191,11 +197,8 @@ class TransactionsListAPI(Resource):
 
         args = parser.parse_args()
         _validate_args(args)
-        transaction = Transaction(
-            purse_from_id=args["purse_from_id"],
-            purse_to_id=args["purse_to_id"],
-            purse_from_amount=args["purse_from_amount"],
-        )
+        transaction = Transaction()
+        transaction.update(**args)
         db.session.add(transaction)
         db.session.commit()
         logging.info(

@@ -1,0 +1,31 @@
+{%- macro search_form() -%}
+{% set filter_show = form.birth_date.data or form.date_created.data or form.date_modified.data %}
+<div class="collapse {% if filter_show %} show {% endif %}" id="filter">
+    <form class="form-inline mr-auto" action="{{ url_for('user_bp.list') }}" method="GET" id="search-form">
+        <div class="row p-2">
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.birth_date.id }}">Birth Date</label>
+                <input name="{{ form.birth_date.name }}" value="{{ form.birth_date.data or '' }}" class="form-control birth_date-datetimepicker" id="{{ form.birth_date.id }}" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+            </div>
+
+            <div class="col-md-4 py-2">
+                <label for="{{ form.date_modified.id }}">Date Created</label>
+                <input name="{{ form.date_created.name }}" value="{{ form.date_created.data or '' }}" class="form-control date_created-datetimepicker" id="{{ form.date_created.id }}" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+            </div>
+            
+            <div class="col-md-4 py-2">
+                <label for="{{ form.date_modified.id }}">Date Modified</label>
+                <input name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or '' }}" class="form-control date_modified-datetimepicker" id="{{ form.date_modified.id }}" type="text" placeholder="Y-m-d to Y-m-d" data-options='{"mode":"range","dateFormat":"Y-m-d","disableMobile":true}' />
+            </div>            
+
+            <div class="col-md-2 py-2">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <span class="fas fa-search"></span>
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+{%- endmacro -%}

@@ -9,6 +9,7 @@ Dependencies:
     - app.models.purses
     - app.models.transactions
     - app.models.users
+    - app.utils.validation
 
 Functions:
     - _create_fake_users(db): creates and saves fake users to the database.
@@ -27,6 +28,7 @@ from app.constants.currency import Currency
 from app.models.purses import Purse
 from app.models.transactions import Transaction
 from app.models.users import User
+from app.utils.validation import fake_phone_number
 
 fake = Faker()
 
@@ -41,18 +43,16 @@ def _create_fake_users(_db):
     """
 
     users = []
-    phone = "+380000000000"
-    for _ in range(9):
-        phone = phone[:-1] + str(int(phone[-1]) + 1)
+    for _ in range(25):
         user = User(
             username=fake.user_name(),
             email=fake.email(),
-            phone=phone,
+            phone=fake_phone_number(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             birth_date=fake.date_of_birth(),
-            date_created=datetime.now(),
-            date_modified=datetime.now(),
+            date_created=datetime.utcnow(),
+            date_modified=datetime.utcnow(),
         )
         users.append(user)
     _db.session.add_all(users)
@@ -76,8 +76,8 @@ def _create_fake_purses(_db):
                 user_id=user.id,
                 currency=currency.value,
                 balance=randint(0, 1000),
-                date_created=datetime.now(),
-                date_modified=datetime.now(),
+                date_created=datetime.utcnow(),
+                date_modified=datetime.utcnow(),
             )
             purses.append(purse)
     _db.session.add_all(purses)
@@ -94,7 +94,7 @@ def _create_fake_transactions(_db):
     """
 
     transactions = []
-    for _ in range(10):
+    for _ in range(100):
         purse_from = Purse.query.order_by(_db.func.random()).first()
         purse_to = (
             Purse.query.filter(
@@ -112,7 +112,7 @@ def _create_fake_transactions(_db):
             purse_to_currency=purse_to.currency,
             purse_from_amount=amount,
             purse_to_amount=amount,
-            date_created=datetime.now(),
+            date_created=datetime.utcnow(),
         )
         transactions.append(transaction)
     _db.session.add_all(transactions)

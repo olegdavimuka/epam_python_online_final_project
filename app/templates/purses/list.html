@@ -1,0 +1,85 @@
+{% extends 'base/base_model_list.html' %}
+{% from 'purses/search_form.html' import search_form with context %}
+
+{% block title %} Purses {% endblock %}
+{% block model_name %} Purses {% endblock %}
+{% block search_url %} <form action="{{ url_for('purse_bp.list') }}" method="GET"> {% endblock %}
+{% block new_instance_link %} {{ url_for('purse_bp.edit', _id=0) }} {% endblock %}
+{% block search_form %} {{ search_form() }} {% endblock %}
+
+{% block model_instances %}
+
+  <!-- TABLE HEADER -->
+  <thead class="bg-200 text-900">
+    <tr>
+      <th class="p-3 align-middle white-space-nowrap">ID</th>
+      <th class="p-3 align-middle white-space-nowrap">User ID</th>
+      <th class="p-3 align-middle white-space-nowrap">Currency</th>
+      <th class="p-3 align-middle white-space-nowrap">Balance</th>
+      <th class="p-3 align-middle white-space-nowrap">Date created</th>
+      <th class="p-3 align-middle white-space-nowrap">Date modified</th>
+      <th class="p-3 align-middle white-space-nowrap">Transactions Out</th>
+      <th class="p-3 align-middle white-space-nowrap">Transactions In</th>
+      <th class="p-3 align-middle text-center" style="width: 10%;">Actions</th>
+    </tr>
+  </thead>
+  <!-- TABLE HEADER -->
+
+  <!-- TABLE CONTENT -->
+  <tbody class="list" id="table-orders-body">
+    {% for purse in pagination.items %}
+      <tr class="btn-reveal-trigger">
+        <td class="p-3 align-middle"><a href="{{ url_for('purse_bp.edit', _id=purse.id) }}"> {{ purse.id }}</td>
+        <td class="p-3 align-middle"><a href="{{ url_for('user_bp.edit', _id=purse.user_id) }}"> {{ purse.user_id }}</td>
+        <td class="p-3 align-middle">{{ Currency(purse.currency).value }}</td>
+        <td class="p-3 align-middle">{{ purse.balance }}</td>
+        <td class="p-3 align-middle">{{ purse.date_created_str() }}</td>
+        <td class="p-3 align-middle">{{ purse.date_modified_str() }}</td>
+        <td class="p-3 align-middle">
+          {% if purse.transactions_from.first() is not none %}
+            {% for transaction in purse.transactions_from %}
+              <a href="{{ url_for('transaction_bp.edit', _id=transaction.id) }}">{{ transaction.id }}</a>
+              {% if not loop.last %}|{% endif %}
+            {% endfor %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td class="p-3 align-middle">
+          {% if purse.transactions_to.first() is not none %}            
+            {% for transaction in purse.transactions_to %}
+              <a href="{{ url_for('transaction_bp.edit', _id=transaction.id) }}">{{ transaction.id }}</a>
+              {% if not loop.last %}|{% endif %}
+            {% endfor %}
+          {% else %}
+            -
+          {% endif %}          
+        </td>              
+
+        <td class="py-3 align-middle text-center">
+          <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ purse.id }}" data-target-id="{{ purse.id }}" data-target-link="{{ url_for('purse_bp.delete', _id=purse.id) }}">
+            <span class="fas fa-trash" data-fa-transform="shrink-3 down-2"></span>
+          </button>
+          <div class="modal fade" id="deleteModal-{{ purse.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Delete Purse</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete this purse?</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-danger" onclick="deleteInstance({{ purse.id }})">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <!-- TABLE CONTENT -->
+
+{% endblock %}
+

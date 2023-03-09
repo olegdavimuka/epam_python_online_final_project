@@ -11,7 +11,7 @@ install:
 script:
   - pytest
   # Run code quality tools
-  - pylint app
+  - pylint -d duplicate-code app
   - flake8 app
   - black --check app
   - isort --check-only app

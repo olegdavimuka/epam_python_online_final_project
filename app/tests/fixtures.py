@@ -12,13 +12,12 @@ Dependencies:
     - app.utils.validation
 
 Functions:
-    - app(): A fixture creates a new app instance for each test.
-    - client(app): A fixture that yields a test client for the app.
-    - runner(app): A fixture that yields a test runner for the app's Click commands.
-    - user(app): A fixture that yields a user for the app.
-    - purse(app): A fixture that yields a purse for the app.
-    - purses(app): A fixture that yields a list of purses for the app.
-    - transaction(app): A fixture that yields a transaction for the app.
+    - fixture_app(): A fixture creates a new app instance for each test.
+    - fixture_client(app): A fixture that yields a test client for the app.
+    - fixture_user(app): A fixture that yields a user for the app.
+    - fixture_purse(app): A fixture that yields a purse for the app.
+    - fixture_purses(app): A fixture that yields a list of purses for the app.
+    - fixture_transaction(app): A fixture that yields a transaction for the app.
 
 """
 
@@ -66,15 +65,24 @@ def fixture_app():
 
         purse1 = Purse(user_id=user.id, currency=Currency.USD.value, balance=1000)
         purse2 = Purse(user_id=user.id, currency=Currency.EUR.value, balance=1000)
+        purse3 = Purse(user_id=user.id, currency=Currency.USD.value, balance=1000)
         db.session.add(purse1)
         db.session.add(purse2)
+        db.session.add(purse3)
         db.session.commit()
 
-        transaction = Transaction(
-            purse_from_id=purse1.id,
-            purse_to_id=purse2.id,
-            purse_from_amount=100,
+        transaction = Transaction()
+        transaction.update(
+            **{
+                "purse_from_id": purse1.id,
+                "purse_to_id": purse2.id,
+                "purse_from_amount": 100,
+            }
         )
+        # Rate = 0.95:
+        # purse1.balance = 1000 - 100 = 900
+        # purse2.balance = 1000 + 100 * 0,95 = 1095.
+        # purse3.balance = 1000
 
         db.session.add(transaction)
         db.session.commit()
@@ -100,22 +108,6 @@ def fixture_client(app):
 
     with app.test_client() as client:
         yield client
-
-
-@pytest.fixture(name="runner")
-def fixture_runner(app):
-    """
-    A fixture that yields a test runner for the app's Click commands.
-
-    Args:
-        - app: The app instance.
-
-    Returns:
-        - runner: The test runner.
-
-    """
-
-    return app.test_cli_runner()
 
 
 @pytest.fixture(name="user")

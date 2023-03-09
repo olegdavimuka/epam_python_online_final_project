@@ -5,7 +5,8 @@ Dependencies:
     - datetime
     - faker
     - app.models.users
-    - app.tests.api.fixtures
+    - app.tests.fixtures
+    - app.utils.validation
 
 Classes:
     - TestUsersAPI: A class that contains the tests for the users API.
@@ -17,15 +18,12 @@ from datetime import datetime
 from faker import Faker
 
 from app.models.users import User
-from app.tests.api.fixtures import (  # noqa: F401 pylint: disable=unused-import
+from app.tests.fixtures import (  # noqa: F401 pylint: disable=unused-import
     fixture_app,
     fixture_client,
-    fixture_purse,
-    fixture_purses,
-    fixture_runner,
-    fixture_transaction,
     fixture_user,
 )
+from app.utils.validation import fake_phone_number
 
 fake = Faker()
 
@@ -49,6 +47,8 @@ class TestUsersAPI:
         with an existing phone number.
         - test_post_user_with_invalid_phone(client): tests the creation of a user
         with an invalid phone number.
+        - test_put_user_with_invalid_email(client): tests the creation of a user
+        with an invalid email.
         - test_post_user_with_invalid_birth_date(client): tests the creation of a user
         with an invalid birth date.
         - test_put_user(client): tests the editing of a new user.
@@ -75,7 +75,7 @@ class TestUsersAPI:
 
         """
 
-        response = client.get("/api/users")
+        response = client.get("/api/users/")
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]["username"] == user.username
@@ -118,7 +118,8 @@ class TestUsersAPI:
 
         response = client.delete(f"/api/users/{user.id}")
         assert response.status_code == 204
-        assert User.query.filter_by(id=user.id).count() == 0
+        assert User.query.filter_by(id=user.id).count() == 1
+        assert User.query.filter_by(id=user.id).first().is_active is False
 
     def test_delete_nonexistent_user(self, client):
         """
@@ -144,12 +145,12 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 201
         assert response.json["username"] == data["username"]
         assert response.json["email"] == data["email"]
@@ -175,12 +176,12 @@ class TestUsersAPI:
         data = {
             "username": user.username,
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(username=data["username"]).count() == 1
 
@@ -197,12 +198,12 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": user.email,
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(email=data["email"]).count() == 1
 
@@ -224,7 +225,7 @@ class TestUsersAPI:
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(phone=data["phone"]).count() == 1
 
@@ -244,7 +245,7 @@ class TestUsersAPI:
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(phone=data["phone"]).count() == 0
 
@@ -259,12 +260,12 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": "invalid",
         }
-        response = client.post("/api/users", data=data)
+        response = client.post("/api/users/", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(birth_date=data["birth_date"]).count() == 0
 
@@ -281,7 +282,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -311,7 +312,7 @@ class TestUsersAPI:
         data = {
             "username": user.username,
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -333,7 +334,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": user.email,
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": fake.date_of_birth(),
@@ -363,6 +364,28 @@ class TestUsersAPI:
         response = client.put(f"/api/users/{user.id}", data=data)
         assert response.status_code == 400
         assert User.query.filter_by(phone=data["phone"]).count() == 1
+
+    def test_put_user_with_invalid_email(self, client, user):
+        """
+        Test updating a user with an invalid email.
+
+        Args:
+            - client: The test client.
+            - user: The user instance.
+
+        """
+
+        data = {
+            "username": fake.user_name(),
+            "email": "invalid",
+            "phone": fake_phone_number(),
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "birth_date": fake.date_of_birth(),
+        }
+        response = client.put(f"/api/users/{user.id}", data=data)
+        assert response.status_code == 400
+        assert User.query.filter_by(phone=data["email"]).count() == 0
 
     def test_put_user_with_invalid_phone(self, client, user):
         """
@@ -399,7 +422,7 @@ class TestUsersAPI:
         data = {
             "username": fake.user_name(),
             "email": fake.email(),
-            "phone": "+380000000001",
+            "phone": fake_phone_number(),
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "birth_date": "invalid",

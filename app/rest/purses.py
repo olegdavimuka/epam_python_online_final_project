@@ -50,7 +50,7 @@ def _get_purse_or_abort_if_doesnt_exist(_id):
     """
 
     purse = db.session.get(Purse, _id)
-    if not purse:
+    if not purse or not purse.is_active:
         logging.error("purse %s doesn't exist.", _id)
         abort(404, message=f"purse {_id} doesn't exist.")
     return purse
@@ -68,7 +68,10 @@ def _validate_args(args):
 
     """
 
-    if User.query.filter_by(id=args["user_id"]).first() is None:
+    if (
+        User.query.filter_by(id=args["user_id"]).first() is None
+        or not User.query.filter_by(id=args["user_id"]).first().is_active
+    ):
         logging.error("User %s doesn't exist.", args["user_id"])
         abort(400, message=f"User {args['user_id']} doesn't exist.")
 
@@ -134,7 +137,7 @@ class PursesAPI(Resource):
         """
 
         purse = _get_purse_or_abort_if_doesnt_exist(_id)
-        db.session.delete(purse)
+        purse.is_active = False
         logging.info("Deleted purse %s.", _id)
         db.session.commit()
         return "", 204

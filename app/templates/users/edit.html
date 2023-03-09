@@ -1,0 +1,70 @@
+{% extends "base/base_model_edit.html" %}
+{% block model_name %}{% if user.id %} User, id: {{ user.id }} {% else %} New User {% endif %}</h5>{% endblock %}
+
+{% block form_fields %}
+
+<div class="form-floating mb-3">
+  <input class="form-control {% if form.username.errors %} is-invalid {% endif %}" id="id-{{ form.username.name }}" type="text" placeholder="John" name="{{ form.username.name }}" value="{{ form.username.data or user.username or '' }}" />
+  <label for="{{ form.username.name }}">{{ form.username.errors|join(' ') or 'Username' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input class="form-control {% if form.email.errors %} is-invalid {% endif %}" id="id-{{ form.email.name }}" type="text" placeholder="john@gmail.com" name="{{ form.email.name }}" value="{{ form.email.data or user.email or '' }}" />
+  <label for="{{ form.email.name }}">{{ form.email.errors|join(' ') or 'Email' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input class="form-control {% if form.phone.errors %} is-invalid {% endif %}" id="id-{{ form.phone.name }}" type="text" placeholder="+380123456789" name="{{ form.phone.name }}" value="{{ form.phone.data or user.phone or '' }}" />
+  <label for="{{ form.phone.name }}">{{ form.phone.errors|join(' ') or 'Phone' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input class="form-control {% if form.first_name.errors %} is-invalid {% endif %}" id="id-{{ form.first_name.name }}" type="text" placeholder="+380123456789" name="{{ form.first_name.name }}" value="{{ form.first_name.data or user.first_name or '' }}" />
+  <label for="{{ form.first_name.name }}">{{ form.first_name.errors|join(' ') or 'First Name' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input class="form-control {% if form.last_name.errors %} is-invalid {% endif %}" id="id-{{ form.last_name.name }}" type="text" placeholder="+380123456789" name="{{ form.last_name.name }}" value="{{ form.last_name.data or user.last_name or '' }}" />
+  <label for="{{ form.last_name.name }}">{{ form.last_name.errors|join(' ') or 'Last Name' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input class="form-control datetimepicker {% if form.birth_date.errors %} is-invalid {% endif %}" id="id-{{ form.birth_date.name }}" type="text" placeholder="100" name="{{ form.birth_date.name }}" value="{{ form.birth_date.data or user.birth_date or '' }}" />
+  <label for="{{ form.birth_date.name }}">{{ form.birth_date.errors|join(' ') or 'Birth Date' }}</label>
+</div>
+
+{% if user.date_created %}
+<div class="form-floating mb-3">
+  <input disabled class="form-control {% if form.date_created.errors %} is-invalid {% endif %}" id="id-{{ form.date_created.name }}" type="text" placeholder="100" name="{{ form.date_created.name }}" value="{{ form.date_created.data or user.date_created_str() or '' }}" />
+  <label for="{{ form.date_created.name }}">{{ form.date_created.errors|join(' ') or 'Date created' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input disabled class="form-control {% if form.date_modified.errors %} is-invalid {% endif %}" id="id-{{ form.date_modified.name }}" type="text" placeholder="100" name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or user.date_modified_str() or '' }}" />
+  <label for="{{ form.date_modified.name }}">{{ form.date_modified.errors|join(' ') or 'Date modified' }}</label>
+</div>
+{% endif %}
+
+<button class="btn btn-primary" type="submit">Save</button>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  $(function () {
+    let dateValue = '{{ form.birth_date.data or user.birth_date or '' }}'
+    $('.datetimepicker').daterangepicker({
+      locale: {
+          format: 'YYYY-MM-DD'
+      },
+      startDate: dateValue || moment(),
+      singleDatePicker: true,
+      showDropdowns: true,
+      minYear: 1900,
+      maxYear: moment().year()
+    });
+
+    $('.datetimepicker').val(dateValue);
+  });
+</script>
+{% endblock %}

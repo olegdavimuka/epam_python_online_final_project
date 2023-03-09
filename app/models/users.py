@@ -3,21 +3,17 @@ This module defines the User class which represents a User entity in the databas
 It also contains functions for converting date and time objects to string representations.
 
 Dependencies:
-    - logging
     - datetime
     - app.db
-    - app.utils.validation
 
 Exported classes:
     - User
 
 """
 
-import logging
 from datetime import datetime
 
 from app import db
-from app.utils.validation import is_valid_email, is_valid_phone_number
 
 
 class User(db.Model):
@@ -35,13 +31,16 @@ class User(db.Model):
         - birth_date (datetime.date): The birth date of the User.
         - date_created (datetime.datetime): The date and time when the User was created.
         - date_modified (datetime.datetime): The date and time when the User was last modified.
+        - is_active (bool): A boolean value indicating whether the User is active or not.
+        - purses (list): A list of purses owned by the User.
 
     Methods:
-        - __init__(self, **kwargs): Initializes a new User instance.
         - birth_date_str(self): Converts the birth_date attribute to a string.
         - date_created_str(self): Converts the date_created attribute to a string.
         - date_modified_str(self): Converts the date_modified attribute to a string.
+        - __repr__(self): Returns a string representation of the User.
         - to_dict(self): Returns a dictionary representation of the User.
+        - update(self, **kwargs): Updates the User with the provided keyword arguments.
     """
 
     __tablename__ = "users"
@@ -60,27 +59,9 @@ class User(db.Model):
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    def __init__(self, **kwargs):
-        """
-        Initializes a new user instance.
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
-        Args:
-            - **kwargs: A dictionary of user attributes.
-
-        Raises:
-            - ValueError: If the email attribute is not valid, or the phone attribute is not valid.
-
-        """
-
-        super().__init__(**kwargs)
-
-        if not is_valid_email(self.email):
-            logging.error("Creating user failed: Email is not valid.")
-            raise ValueError("Email is not valid.")
-
-        if not is_valid_phone_number(self.phone):
-            logging.error("Creating user failed: Phone number is not valid.")
-            raise ValueError("Phone number is not valid.")
+    purses = db.relationship("Purse", backref="user", lazy=True)
 
     def birth_date_str(self):
         """
@@ -125,7 +106,7 @@ class User(db.Model):
         """
 
         return f"User id: {self.id}, \
-            name: {self.name}, \
+            name: {self.username}, \
             email: {self.email}, \
             phone: {self.phone}"
 
@@ -149,3 +130,26 @@ class User(db.Model):
             "date_created": self.date_created_str(),
             "date_modified": self.date_modified_str(),
         }
+
+    def update(self, **kwargs):
+        """
+        Updates the User object with the given keyword arguments. The birth_date attribute
+        is converted to a datetime.date object and the date_created and date_modified
+        attributes are removed from the dictionary.
+
+        Parameters:
+            - **kwargs: Keyword arguments to update the User object with.
+
+        """
+
+        if "birth_date" in kwargs:
+            kwargs["birth_date"] = datetime.strptime(kwargs["birth_date"], "%Y-%m-%d")
+
+        if "date_created" in kwargs:
+            kwargs.pop("date_created")
+
+        if "date_modified" in kwargs:
+            kwargs.pop("date_modified")
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)

@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="card m-3">
+
+  <!-- HEADER -->
+  <div class="card-header p-3">
+    <div class="row flex-between-end">
+      <div class="col-auto align-self-center">
+        <h5 class="mb-0" data-anchor="data-anchor">{% block model_name %}{% endblock %}</h5>
+      </div>
+    </div>
+  </div>
+  <!-- HEADER -->
+
+  <!-- ERRORS -->
+  {% if errors %}
+    <div class="alert alert-danger p-3">
+      <ul>
+        {% for error in errors %}
+            <li>{{ error }}:{{ errors[error] }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  <!-- ERRORS -->
+
+  <!-- SUCCESS -->
+  {% if success %}
+    <div class="alert alert-success p-3">
+      <ul>
+        <li>Sucess!</li>
+      </ul>
+    </div>
+  {% endif %}
+  <!-- SUCCESS -->  
+
+  <!-- BODY -->
+  <div class="card-body bg-light">
+    <div class="tab-content">
+      <form method="post" class="form-floating">
+        {% block form_fields %}{% endblock %}
+        {{ form.csrf_token }}
+      </form>
+    </div>
+  </div>
+  <!-- BODY -->
+
+</div>
+{% endblock %}

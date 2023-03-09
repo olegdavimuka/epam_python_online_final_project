@@ -1,0 +1,140 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="card m-3">
+
+  <!-- HEADER -->
+  <div class="card-header p-3">
+    <div class="row flex-between-center">
+
+      <div class="col-auto col-sm-6 col-lg-7">
+        <h5 class="fs-0 mb-0 text-nowrap py-2 py-xl-0">
+            {% block model_name %}{% endblock %}
+        </h5>
+      </div>
+
+      <div class="col-auto col-sm-6 col-lg-5">
+        <div>
+          {% block search_url %}{% endblock %}
+            <div class="input-group">
+
+              <input class="form-control form-control-sm shadow-none search" type="search" placeholder="Search" aria-label="search" name="{{ form.search.name }}" value="{{ form.search.data or '' }}">
+
+              <div class="input-group-text bg-transparent">
+                <button class="btn btn-falcon-default btn-sm" type="submit">
+                  <span class="fas fa-search" data-fa-transform="shrink-3 down-2"></span>
+                </button>
+              </div>
+
+          </form>
+
+              <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter" aria-expanded="false" aria-controls="filter">
+                <span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span>
+                <span class="d-none d-sm-inline-block ms-1">Filter</span>
+              </button>
+
+              <button onclick="window.location.href='{% block new_instance_link %}{% endblock %}'" class="btn btn-outline-primary btn-sm" type="button">
+                <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
+                <span class="d-none d-sm-inline-block ms-1">New</span>
+              </button>
+
+            </div>
+        </div>
+      </div>
+      {% block search_form %}{% endblock %}
+    </div>
+  </div>
+  <!-- HEADER -->
+
+  <!-- BODY -->
+  <div class="card-body p-0">
+    <div class="table-responsive scrollbar">
+      <table class="table table-sm table-striped table-hover fs--1 mb-0 overflow-hidden">
+        {% block model_instances %}{% endblock %}
+      </table>
+    </div>
+  </div>
+  <!-- BODY -->
+
+  <!-- FOOTER -->
+  <div class="card-footer">
+    {% with url=url %}
+      {% include "pagination.html" %}
+    {% endwith %}
+  </div>
+  <!-- FOOTER -->
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+
+<!-- OBJECT DELETING -->
+<script>
+    function deleteInstance(instance_id) {
+      $('.modal').modal('hide');
+      let url = $(`button[data-target-id="${instance_id}"]`).attr('data-target-link');
+
+      $.ajax({
+        url: url,
+        method: "DELETE",
+        success: function (data, textStatus, xhr) {
+          let el = $(`tr.link-row[data-target-id="${instance_id}"]`)
+          el.remove()
+          window.location.reload()
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log(xhr, textStatus, errorThrown)
+          window.location.reload()
+        }
+      })
+    }
+</script>
+<!-- OBJECT DELETING -->
+
+<!-- DATETIMEPICKER -->
+<script>
+    $(function () {
+      function initializeDateTimePicker(field) {
+        let dateArray = []
+        let minYear = 2023
+        {% if form.birth_date %}
+        if (field === 'birth_date') {
+          dateArray = '{{ form.birth_date.data or '' }}'.split(' - ')
+          minYear = 1900
+        }      
+        {% endif %}
+        if (field === 'date_created') {
+          dateArray = '{{ form.date_created.data or '' }}'.split(' - ')
+        }
+        if (field === 'date_modified') {
+          dateArray = '{{ form.date_modified.data or '' }}'.split(' - ')
+        }
+        
+        let startDate = dateArray[0]
+        let endDate = dateArray[dateArray.length - 1]
+        $(`.${field}-datetimepicker`).daterangepicker({
+          locale: {
+              format: 'YYYY-MM-DD'
+          },
+          startDate: startDate || Date.utcnow(),
+          endDate: endDate || Date.utcnow(),
+          timePicker: false,
+          showDropdowns: true,
+          minYear: minYear,
+          maxYear: 2023
+        });
+
+        $(`.${field}-datetimepicker`).val(dateArray);
+      }
+      
+      const fields = ['birth_date', 'date_created', 'date_modified'];
+      for (const field of fields) {
+        initializeDateTimePicker(field);
+        
+      }
+    });
+</script>
+<!-- DATETIMEPICKER -->
+
+{% endblock %}

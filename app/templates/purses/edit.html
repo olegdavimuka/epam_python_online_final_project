@@ -1,0 +1,48 @@
+{% extends "base/base_model_edit.html" %}
+{% block model_name %}{% if purse.id %} Purse, id: {{ purse.id }} {% else %} New Purse {% endif %}</h5>{% endblock %}
+
+{% block form_fields %}
+
+<div class="form-floating mb-3">
+  <select {% if purse.date_created %} disabled {% endif %} class="form-select {% if form.user_id.errors %} is-invalid {% endif %}" id="id-{{ form.user_id.name }}" name="{{ form.user_id.name }}">
+    {% for u in users %}
+      {% if u.is_active %}
+        <option value="{{ u.id }}" {% if form.user_id.data == u.id %} selected {% elif purse.date_created and purse.user_id == u.id %} selected {% endif %}>{{ u.username }}:{{ u.id }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+  <label for="{{ form.user_id.name }}">{{ form.user_id.errors|join(' ') or 'User ID' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <select {% if purse.date_created %} disabled {% endif %} class="form-select {% if form.currency.errors %} is-invalid {% endif %}" id="id-{{ form.currency.name }}" name="{{ form.currency.name }}">
+    {% for c in Currency %}
+      <option value="{{ c.value }}" {% if form.currency.data == c %} selected {% elif purse.date_created and Currency(purse.currency).value == c %} selected {% endif %}>{{ Currency(c).value }}</option>
+    {% endfor %}
+  </select>
+  <label for="{{ form.currency.name }}">{{ form.currency.errors|join(' ') or 'Currency' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input {% if purse.date_created %} disabled  {% else %} readonly {% endif %} class="form-control {% if form.balance.errors %} is-invalid {% endif %}" id="id-{{ form.balance.name }}" type="text" placeholder="100" name="{{ form.balance.name }}" value="{{ form.balance.data or purse.balance or '0.0' }}" />
+  <label for="{{ form.balance.name }}">{{ form.balance.errors|join(' ') or 'Balance' }}</label>
+</div>
+
+{% if purse.date_created %}
+<div class="form-floating mb-3">
+  <input disabled class="form-control {% if form.date_created.errors %} is-invalid {% endif %}" id="id-{{ form.date_created.name }}" type="text" placeholder="100" name="{{ form.date_created.name }}" value="{{ form.date_created.data or purse.date_created_str() or '' }}" />
+  <label for="{{ form.date_created.name }}">{{ form.date_created.errors|join(' ') or 'Date created' }}</label>
+</div>
+
+<div class="form-floating mb-3">
+  <input disabled class="form-control {% if form.date_modified.errors %} is-invalid {% endif %}" id="id-{{ form.date_modified.name }}" type="text" placeholder="100" name="{{ form.date_modified.name }}" value="{{ form.date_modified.data or purse.date_modified_str() or '' }}" />
+  <label for="{{ form.date_modified.name }}">{{ form.date_modified.errors|join(' ') or 'Date modified' }}</label>
+</div>
+{% endif %}
+
+{% if not purse.date_created %}
+  <button class="btn btn-primary" type="submit">Save</button>
+{% endif %}
+
+
+{% endblock %}

@@ -28,7 +28,7 @@ db = SQLAlchemy()
 migrate = Migrate(db)
 
 
-def create_app(config_class=Config):
+def create_app(config_class=Config):  # pylint: disable=too-many-locals
     """
     The create_app() function initializes and configures the Flask app
     by setting the configuration, initializing the database, and registering
@@ -63,14 +63,37 @@ def create_app(config_class=Config):
     )
 
     api = Api(prefix="/api")
-    api.add_resource(UsersListAPI, "/users")
+    api.add_resource(UsersListAPI, "/users/")
     api.add_resource(UsersAPI, "/users/<int:_id>")
-    api.add_resource(PursesListAPI, "/purses")
+    api.add_resource(PursesListAPI, "/purses/")
     api.add_resource(PursesAPI, "/purses/<int:_id>")
-    api.add_resource(TransactionsListAPI, "/transactions")
+    api.add_resource(TransactionsListAPI, "/transactions/")
     api.add_resource(TransactionsAPI, "/transactions/<int:_id>")
 
     api.init_app(app)
+
+    from app.views.home import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        HomeView,
+    )
+    from app.views.purses import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        PurseBlueprint,
+    )
+    from app.views.transactions import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        TransactionBlueprint,
+    )
+    from app.views.users import (  # pylint: disable=import-outside-toplevel, cyclic-import
+        UserBlueprint,
+    )
+
+    app.add_url_rule("/", view_func=HomeView.as_view("home"))
+    user_bp = UserBlueprint("user_bp", __name__, url_prefix="/users")
+    purse_bp = PurseBlueprint("purse_bp", __name__, url_prefix="/purses")
+    transaction_bp = TransactionBlueprint(
+        "transaction_bp", __name__, url_prefix="/transactions"
+    )
+    app.register_blueprint(user_bp)
+    app.register_blueprint(purse_bp)
+    app.register_blueprint(transaction_bp)
 
     setup_logging()
 

@@ -1,0 +1,83 @@
+{% extends 'base/base_model_list.html' %}
+{% from 'users/search_form.html' import search_form with context %}
+
+{% block title %} Users {% endblock %}
+{% block model_name %} Users {% endblock %}
+{% block search_url %} <form action="{{ url_for('user_bp.list') }}" method="GET"> {% endblock %}
+{% block new_instance_link %} {{ url_for('user_bp.edit', _id=0) }} {% endblock %}
+{% block search_form %} {{ search_form() }} {% endblock %}
+
+{% block model_instances %}
+
+  <!-- TABLE HEADER -->
+  <thead class="bg-200 text-900">
+    <tr>
+      <th class="p-3 align-middle white-space-nowrap">ID</th>
+      <th class="p-3 align-middle white-space-nowrap">Username</th>
+      <th class="p-3 align-middle white-space-nowrap">Email</th>
+      <th class="p-3 align-middle white-space-nowrap">Phone</th>
+      <th class="p-3 align-middle white-space-nowrap">First Name</th>
+      <th class="p-3 align-middle white-space-nowrap">Last Name</th>
+      <th class="p-3 align-middle white-space-nowrap">Birth Date</th>
+      <th class="p-3 align-middle white-space-nowrap">Date Created</th>
+      <th class="p-3 align-middle white-space-nowrap">Date Modified</th>
+      <th class="p-3 align-middle white-space-nowrap">Purses</th>
+      <th class="p-3 align-middle white-space-nowrap">Purse count</th>
+      <th class="p-3 align-middle text-center" style="width: 10%;">Actions</th>
+    </tr>
+  </thead>
+  <!-- TABLE HEADER -->
+
+  <!-- TABLE CONTENT -->
+  <tbody class="list" id="table-orders-body">
+    {% for user, purse_count in pagination.items %}
+      <tr class="btn-reveal-trigger">
+        <td class="p-3 align-middle"><a href="{{ url_for('user_bp.edit', _id=user.id) }}"> {{ user.id }}</td>
+        <td class="p-3 align-middle">{{ user.username }}</td>
+        <td class="p-3 align-middle">{{ user.email }}</td>
+        <td class="p-3 align-middle">{{ user.phone }}</td>
+        <td class="p-3 align-middle">{{ user.first_name }}</td>
+        <td class="p-3 align-middle">{{ user.last_name }}</td>
+        <td class="p-3 align-middle">{{ user.birth_date }}</td>       
+        <td class="p-3 align-middle">{{ user.date_created_str() }}</td>
+        <td class="p-3 align-middle">{{ user.date_modified_str() }}</td>
+        <td class="p-3 align-middle">
+          {% if len(user.purses) != 0 %}
+            {% for purse in user.purses %}
+              {% if purse.is_active %}
+                <a href="{{ url_for('purse_bp.edit', _id=purse.id) }}">{{ purse.id }}</a>
+                {% if not loop.last %}|{% endif %}
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td class="p-3 align-middle">{{ purse_count }}</td>
+
+        <td class="p-3 align-middle text-center">
+          <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ user.id }}" data-target-id="{{ user.id }}" data-target-link="{{ url_for('user_bp.delete', _id=user.id) }}">
+            <span class="fas fa-trash" data-fa-transform="shrink-3 down-2"></span>
+          </button>
+          <div class="modal fade" id="deleteModal-{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Delete User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete this user? All purses associated with this user will be deleted as well.</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-danger" onclick="deleteInstance({{ user.id }})">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <!-- TABLE CONTENT -->
+
+{% endblock %}

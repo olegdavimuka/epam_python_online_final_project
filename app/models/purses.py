@@ -3,23 +3,19 @@ This module defines the Purse class which represents a Purse entity in the datab
 It also contains functions for converting date and time objects to string representations.
 
 Dependencies:
-    - logging
     - datetime
     - app.db
     - app.constants.currency
-    - app.models.users
 
 Exported classes:
     - Purse
 
 """
 
-import logging
 from datetime import datetime
 
 from app import db
 from app.constants.currency import Currency
-from app.models.users import User
 
 
 class Purse(db.Model):
@@ -34,13 +30,16 @@ class Purse(db.Model):
         - balance (float): The current balance of the purse.
         - date_created (datetime): The date and time when the purse was created.
         - date_modified (datetime): The date and time when the purse was last modified.
+        - is_active (bool): A flag indicating whether the purse is active.
+        - transactions_from (list): A list of transactions where the purse is the sender.
+        - transactions_to (list): A list of transactions where the purse is the recipient.
 
     Methods:
-        - __init__(self, **kwargs): Initializes a new purse instance.
         - __repr__(self): Returns a string representation of the purse.
         - date_created_str(self): Converts the date_created attribute to a string.
         - date_modified_str(self): Converts the date_modified attribute to a string.
         - to_dict(self): Returns a dictionary representation of the purse.
+        - update(self, **kwargs): Updates the purse with the provided keyword arguments.
 
     """
 
@@ -56,29 +55,21 @@ class Purse(db.Model):
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    def __init__(self, **kwargs):
-        """
-        Initializes a new purse instance.
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
-        Args:
-            - **kwargs: A dictionary of purse attributes.
+    transactions_from = db.relationship(
+        "Transaction",
+        foreign_keys="Transaction.purse_from_id",
+        backref="purse_from",
+        lazy="dynamic",
+    )
 
-        Raises:
-            - ValueError: If the user_id attribute is not valid,
-            or the currency attribute is not valid.
-
-        """
-
-        super().__init__(**kwargs)
-
-        user = User.query.filter_by(id=self.user_id).first()
-        if not user:
-            logging.error("Purse creation failed. User doesn't exist.")
-            raise ValueError("User doesn't exist.")
-
-        if self.currency not in [c.value for c in Currency]:
-            logging.error("Purse creation failed. Currency is not valid.")
-            raise ValueError("Currency is not valid.")
+    transactions_to = db.relationship(
+        "Transaction",
+        foreign_keys="Transaction.purse_to_id",
+        backref="purse_to",
+        lazy="dynamic",
+    )
 
     def __repr__(self):
         """
@@ -135,3 +126,15 @@ class Purse(db.Model):
             "date_created": self.date_created_str(),
             "date_modified": self.date_modified_str(),
         }
+
+    def update(self, **kwargs):
+        """
+        Updates the Purse object with the given keyword arguments.
+
+        Parameters:
+            - **kwargs: Keyword arguments to update the Purse object with.
+
+        """
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)

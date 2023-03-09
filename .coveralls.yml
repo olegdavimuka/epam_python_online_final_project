@@ -1,11 +1,18 @@
 service_name: travis-ci
-language: python
-python:
-  - "3.10"
-install:
-  - pip install -r requirements.txt
-  - pip install coverage coveralls
-script:
-  - coverage run --source=src -m unittest discover -s tests
-after_success:
-  - coveralls
+repo_token: 3fXPaCYp20xG6WUb2Jlg843o9F6kp4Zy5
+
+coverage:
+  precision: 2
+  round: down
+  coverage: 
+    - "app/*"
+
+coverage_threshold: 
+  high: 90
+  low: 80
+
+pytest:
+  parallel: true
+  addopts:
+    --cov=app
+    --cov-report=term-missing

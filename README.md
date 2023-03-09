@@ -1,6 +1,6 @@
 # Flask Boilerplate
-[![Coverage Status](https://coveralls.io/repos/github/olegdavimuka/flask_boilerplate/badge.svg?branch=main)](https://coveralls.io/github/olegdavimuka/flask_boilerplate?branch=main)
 [![Build Status](https://app.travis-ci.com/olegdavimuka/flask_boilerplate.svg?token=dr6uXgRpCEyJcSveCLS7&branch=main)](https://app.travis-ci.com/olegdavimuka/flask_boilerplate)
+[![Coverage Status](https://coveralls.io/repos/github/olegdavimuka/flask_boilerplate/badge.svg?branch=main)](https://coveralls.io/github/olegdavimuka/flask_boilerplate?branch=main)
 
 
 This Flask app is a simple web service that allows to manage users, purses, transactions, currencies, and rates.

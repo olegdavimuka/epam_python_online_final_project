@@ -1,18 +1,1 @@
-service_name: travis-ci
 repo_token: 3fXPaCYp20xG6WUb2Jlg843o9F6kp4Zy5
-
-coverage:
-  precision: 2
-  round: down
-  coverage: 
-    - "app/*"
-
-coverage_threshold: 
-  high: 90
-  low: 80
-
-pytest:
-  parallel: true
-  addopts:
-    --cov=app
-    --cov-report=term-missing

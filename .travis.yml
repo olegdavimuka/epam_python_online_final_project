@@ -6,7 +6,7 @@ python:
 
 install:
   - pip install -r requirements.txt
-  - pip install coverage pylint flake8 black isort
+  - pip install black isort flake8 pylint coverage coveralls
 
 script:
   - pytest
@@ -19,3 +19,4 @@ script:
 after_success:
   - coverage run --source=app -m pytest
   - coverage report
+  - coveralls
